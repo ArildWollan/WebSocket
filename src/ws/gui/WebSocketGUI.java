@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -14,7 +16,9 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-public class WebSocketGUI extends JFrame {
+import ws.utils.TimeUtility;
+
+public class WebSocketGUI extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = -906662423360329760L;
 	private JTextArea logArea = new JTextArea();
@@ -27,9 +31,9 @@ public class WebSocketGUI extends JFrame {
 		setTitle("WebSocket");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		Dimension logDimension = new Dimension(480, 370);
+		Dimension logDimension = new Dimension(680, 370);
 		Dimension userDimension = new Dimension(240, 370);
-		Dimension commandDimension = new Dimension(700, 25);
+		Dimension commandDimension = new Dimension(920, 25);
 
 		Border logBorder = new EmptyBorder(5, 5, 5, 5);
 		Border userBorder = new EmptyBorder(5, 0, 5, 5);
@@ -41,7 +45,7 @@ public class WebSocketGUI extends JFrame {
 		logArea.setEditable(false);
 		logArea.setMargin(new Insets(5, 5, 5, 5));
 		logArea.append("Server log\n\n");
-		
+
 		logPane.setMinimumSize(logDimension);
 		logPane.setMaximumSize(logDimension);
 		logPane.setPreferredSize(logDimension);
@@ -62,16 +66,48 @@ public class WebSocketGUI extends JFrame {
 		commandField.setMaximumSize(commandDimension);
 		commandField.setPreferredSize(commandDimension);
 		commandField.setBorder(new CompoundBorder(commandBorder, lineBorder));
+		commandField.addKeyListener(this);
 
 		add(logPane, BorderLayout.CENTER);
 		add(userPane, BorderLayout.EAST);
 		add(commandField, BorderLayout.SOUTH);
 
 		pack();
-		setResizable(false);
 		setLocationRelativeTo(null);
 		setVisible(true);
 		commandField.requestFocus();
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {}
+
+	@Override
+	public void keyReleased(KeyEvent e) {}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			executeCommand(commandField.getText());
+			commandField.setText("");
+		}
+	}
+
+	public void executeCommand(String command) {
+		
+		// Show command in console
+		String timestamp = TimeUtility.getTimeStamp();
+		String output = timestamp + " Server: " + command + "\n";
+		logArea.append(output);
+		
+		// execute command
+		if (command.equals("q")) {
+			System.exit(0);
+		} else if (command.equals("help")) {
+			output = timestamp + " Server: Listing all available commands\n" + "q - Terminate WebSocket\n";
+		} else {
+			output = timestamp + " Server: " + command + " is not a recognized command, type 'help' for a list of commands\n";
+		}
+		logArea.append(output);
 	}
 
 	public static void main(String[] args) {
