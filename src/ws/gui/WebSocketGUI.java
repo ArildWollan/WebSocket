@@ -3,6 +3,7 @@ package ws.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Insets;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -37,6 +38,9 @@ public class WebSocketGUI extends JFrame {
 
 		logArea.setLineWrap(true);
 		logArea.setWrapStyleWord(true);
+		logArea.setEditable(false);
+		logArea.setMargin(new Insets(5, 5, 5, 5));
+		logArea.append("Server log\n\n");
 		
 		logPane.setMinimumSize(logDimension);
 		logPane.setMaximumSize(logDimension);
@@ -45,6 +49,9 @@ public class WebSocketGUI extends JFrame {
 
 		userArea.setLineWrap(true);
 		userArea.setWrapStyleWord(true);
+		userArea.setEditable(false);
+		userArea.setMargin(new Insets(5, 5, 5, 5));
+		userArea.append("Active connections\n\n");
 
 		userPane.setMinimumSize(userDimension);
 		userPane.setMaximumSize(userDimension);
@@ -64,6 +71,7 @@ public class WebSocketGUI extends JFrame {
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setVisible(true);
+		commandField.requestFocus();
 	}
 
 	public static void main(String[] args) {
