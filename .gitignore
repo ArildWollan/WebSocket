@@ -1,3 +1,5 @@
+js/server/node_modules
+out
 *.class
 
 # Mobile Tools for Java (J2ME)
