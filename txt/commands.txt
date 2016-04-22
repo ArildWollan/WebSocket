@@ -1,0 +1,3 @@
+q-Terminate WebSocket application
+stop-Stop WebSocket server
+start <port number>-Start WebSocket server at specified port
