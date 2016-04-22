@@ -61,6 +61,7 @@ public class WebSocketConnection implements Runnable {
 			}
 			System.out.println("\n"+connection.getInetAddress().getHostAddress() + " has disconnected");
 			connection.close();
+			server.getConnections().remove(connection);
 			
 		} catch (Exception e) {
 			// TODO: handle exception
