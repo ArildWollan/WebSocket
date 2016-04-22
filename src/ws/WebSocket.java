@@ -85,10 +85,14 @@ public class WebSocket {
 		serverThread.start();
 	}
 
+	public WebSocketGUI getGUI() {
+		return gui;
+	}
+
 	public void setGUI(WebSocketGUI gui) {
 		this.gui = gui;
 	}
-
+	
 	synchronized public void broadcast(WebSocketMessage message) {
 		for(Socket s : connections){
 			try {

@@ -146,7 +146,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			// Stop server
 		} else if (command.equals("stop")) {
 			if (this.ws.stopServer()) {
-				output += " Server: WebSocket stopped\n";				
+				output += " Server: WebSocket stopped\n";
 			} else {
 				output += " ERROR: No server running!\n";
 			}
@@ -182,5 +182,10 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		String timestamp = TimeUtility.getTimeStamp();
 		connectionsArea.append(connection + "\n");
 		logArea.append(timestamp + " " + connection + " has connected\n");
+	}
+	
+	public void logMessage(String source, String message) {
+		String timestamp = TimeUtility.getTimeStamp();
+		logArea.append(timestamp + " " + source + ": " + message + "\n");
 	}
 }
