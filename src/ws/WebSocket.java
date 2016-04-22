@@ -17,7 +17,8 @@ public class WebSocket {
 	private ArrayList<Socket> connections = new ArrayList<>();
 	private WebSocket mainWebSocketServer = this;
 	private WebSocketGUI gui;
-
+	private int MAXCLIENTS = 100;
+	
 	public synchronized ArrayList<Socket> getConnections() {
 		return connections;
 	}
@@ -39,7 +40,6 @@ public class WebSocket {
 	}
 
 	private void runServer(int portnum) {
-		System.out.println("In runServer");
 		Thread serverThread = new Thread() {
 
 			public void run() {
@@ -48,15 +48,24 @@ public class WebSocket {
 					server = new ServerSocket(portnum);
 
 					while (running) {
-						System.out.println("Waiting for connections");
-						try {
-							Socket conn = server.accept();
-							connections.add(conn);
-							gui.addConnection(conn.getInetAddress().getHostAddress());
-							new Thread(new WebSocketConnection(conn, mainWebSocketServer)).start();
-
-						} catch (SocketException e) {
-
+						if (connections.size() < MAXCLIENTS) {
+							try {
+								Socket conn = server.accept();
+								connections.add(conn);
+								gui.addConnection(conn.getInetAddress().getHostAddress());
+								new Thread(new WebSocketConnection(conn, mainWebSocketServer)).start();
+								System.out.println(conn.getInetAddress().getHostAddress() + " has connected, clients: " + connections.size());
+							} catch (SocketException e) {
+								e.printStackTrace();
+							}							
+						} else {
+							try {
+								//TODO: This is ugly..
+								Thread.sleep(5000);
+								System.out.println("MAX connections, sleeping 5s");
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				} catch (IOException e) {
@@ -69,6 +78,24 @@ public class WebSocket {
 
 	public void setGUI(WebSocketGUI gui) {
 		this.gui = gui;
+	}
+
+	synchronized public void broadcast(WebSocketMessage message) {
+		for(Socket s : connections){
+			try {
+				s.getOutputStream().write(message.getFrame());
+			    s.getOutputStream().flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public void removeConnection(Socket connection) {
+		connections.remove(connection);
+		System.out.println(connection.getInetAddress().getHostAddress() + " has disconnected, clients: " + connections.size());
+
 	}
 
 	public static void main(String args[]) throws IOException {

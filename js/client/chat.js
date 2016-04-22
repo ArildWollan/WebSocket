@@ -3,7 +3,7 @@ var ws =  new WebSocket("ws://localhost:3002");
 var name;
 
 $(document).ready(function(){
-
+  getName();
   console.log(ws)
 
   ws.onerror = function(msg) {
@@ -40,6 +40,9 @@ $(document).ready(function(){
   }
 });
 
+function getName(){
+	name = prompt("Enter name","Anonymous");
+}
 
 function handleClick(){
   var message = document.getElementById('chatbox').value;
@@ -49,7 +52,6 @@ function handleClick(){
   if(ws.readyState == 1) {
     var json = {"message": {"time" : datestamp, "name": name, "msg": message }};
     this.ws.send(JSON.stringify(json));
-    //this.ws.send(message);
   }
 
   document.getElementById('chatbox').value = "";
