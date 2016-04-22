@@ -12,6 +12,12 @@ public class ServerUtils {
 
 	public static byte[] getPayloadFromFrame(byte[] frame) {
 		int maskIndex = 2;
+
+		// If we get opcode 8, then return null because it is a disconnect.
+		if((frame[0] & 0x0f) == 8) {
+			return null;
+		}
+		
 		byte[] maskBytes = new byte[4];
 
 		//

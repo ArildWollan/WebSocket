@@ -43,15 +43,24 @@ public class WebSocketConnection implements Runnable {
 				// Waiting to read from connected client.
 				this.connection.getInputStream().read(frame);
 				// Parse the byte array to get the actual payload.
-				String message = new String(ServerUtils.getPayloadFromFrame(frame), Charset.forName("UTF-8"));
-				// Send the message back to all the client and flush.
-				// TODO: handle concurrency with something like mutex
-				for(Socket s : this.server.getConnections()){
-					s.getOutputStream().write(ServerUtils.getFrameFromPayload(message));
-				    s.getOutputStream().flush();					
+				byte[] framebytes = ServerUtils.getPayloadFromFrame(frame);
+				
+				if (framebytes != null) {
+					String message = new String(framebytes, Charset.forName("UTF-8"));
+					// Send the message back to all the client and flush.
+					// TODO: handle concurrency with something like mutex
+					for(Socket s : this.server.getConnections()){
+						s.getOutputStream().write(ServerUtils.getFrameFromPayload(message));
+					    s.getOutputStream().flush();
+					}
+					
+				} else {
+					break;
 				}
 				
 			}
+			System.out.println("\n"+connection.getInetAddress().getHostAddress() + " has disconnected");
+			connection.close();
 			
 		} catch (Exception e) {
 			// TODO: handle exception
