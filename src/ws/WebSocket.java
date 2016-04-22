@@ -23,19 +23,28 @@ public class WebSocket {
 		return connections;
 	}
 
-	public void startServer(int portnum) {
-		running = true;
-		runServer(portnum);
+	public boolean startServer(int portnum) {
+		if(!running) {
+			running = true;
+			runServer(portnum);			
+			return true;
+		}
+		return false;
 	}
 
-	public void stopServer() {
-		running = false;
-
-		try {
-			if (server != null && !server.isClosed())
-				server.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public boolean stopServer() {
+		if(running) {
+			running = false;
+			try {
+				if (server != null && !server.isClosed()) {
+					server.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return true;		
+		} else {
+			return false;
 		}
 	}
 

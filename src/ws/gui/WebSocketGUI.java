@@ -6,6 +6,9 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -125,10 +128,13 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		{
 			try {
 				int port = Integer.parseInt(command.split("\\s")[1]);
-
 				if (port >= 1024 && port <= 65535) {
-					output += " Server: WebSocket started and ready to accept connections on port " + port + "\n";
-					this.ws.startServer(port);
+					if (this.ws.startServer(port)) {
+						output += " Server: WebSocket started and ready to accept connections on port " + port + "\n";
+					} else {
+						output += " ERROR: WebSocket already running! - Type 'stop' to stop it\n";
+					}
+
 				} else {
 					output += " ERROR: Port number must be in range (1024 - 65535)\n";
 				}
@@ -139,14 +145,36 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 
 			// Stop server
 		} else if (command.equals("stop")) {
-			this.ws.stopServer();
-			output += " Server: WebSocket stopped\n";
+			if (this.ws.stopServer()) {
+				output += " Server: WebSocket stopped\n";				
+			} else {
+				output += " ERROR: No server running!\n";
+			}
+			logArea.append(output);
+
+			// Save log file
+		} else if (command.equals("save")) {
+			saveLogFile();
+			output += " Saved logfile at txt/wslog.txt";
 			logArea.append(output);
 
 			// Display error message
 		} else {
 			output += " ERROR: " + command + " is not a recognized command, type 'help' for a list of commands\n";
 			logArea.append(output);
+		}
+	}
+
+	private void saveLogFile() {
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter("txt/wslog.txt", "UTF-8");
+			writer.println(logArea.getText().trim());
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 
