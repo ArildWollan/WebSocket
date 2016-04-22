@@ -98,22 +98,23 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	public void executeCommand(String command) {
 		String timestamp = TimeUtility.getTimeStamp();
 		String output = timestamp + " Server: ";
-		
+
 		// execute command
 		if (command.equals("q")) {
 			System.exit(0);
-			
+
 		} else if (command.equals("help")) {
 			output += "Listing all available commands\n" + "q - Terminate WebSocket\n";
-			
-		} else if (command.equals("start")) {
-			output += "Starting WebSocket server at port 3000\n";
-			this.ws.startServer(3000);
-			
+
+		} else if (command.split("\\s+")[0].equals("start")) {
+			int port = Integer.parseInt(command.split("\\s+")[1]); // Check input later
+			output += "Starting WebSocket server at port " + port + "\n";
+			this.ws.startServer(port);
+
 		} else if (command.equals("stop")) {
 			output += "Stopping WebSocket server\n";
 			this.ws.stopServer();
-			
+
 		} else {
 			output += command + " is not a recognized command, type 'help' for a list of commands\n";
 		}

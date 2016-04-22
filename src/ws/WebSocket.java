@@ -23,6 +23,7 @@ public class WebSocket {
 		running = false;
 
 		try {
+			if(server != null && !server.isClosed())
 			server.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -41,8 +42,8 @@ public class WebSocket {
 						System.out.println("Waiting for connections");
 						try {
 							Socket connection = server.accept();
-							
-							// Start each new connection in separate thread here
+							System.out.println("Connection established! Woooohooo!");
+							new ClientConnection(connection);
 							
 						} catch (SocketException e) {
 
