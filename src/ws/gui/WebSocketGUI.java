@@ -16,6 +16,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import ws.WebSocket;
 import ws.utils.TimeUtility;
 
 public class WebSocketGUI extends JFrame implements KeyListener {
@@ -26,8 +27,10 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	private JTextField commandField = new JTextField();
 	private JScrollPane logPane = new JScrollPane(logArea);
 	private JScrollPane userPane = new JScrollPane(userArea);
+	private WebSocket ws;
 
-	public WebSocketGUI() {
+	public WebSocketGUI(WebSocket ws) {
+		this.ws = ws;
 		setTitle("WebSocket");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -93,24 +96,27 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	}
 
 	public void executeCommand(String command) {
-		
-		// Show command in console
 		String timestamp = TimeUtility.getTimeStamp();
-		String output = timestamp + " Server: " + command + "\n";
-		logArea.append(output);
+		String output = timestamp + " Server: ";
 		
 		// execute command
 		if (command.equals("q")) {
 			System.exit(0);
+			
 		} else if (command.equals("help")) {
-			output = timestamp + " Server: Listing all available commands\n" + "q - Terminate WebSocket\n";
+			output += "Listing all available commands\n" + "q - Terminate WebSocket\n";
+			
+		} else if (command.equals("start")) {
+			output += "Starting WebSocket server at port 3000\n";
+			this.ws.startServer(3000);
+			
+		} else if (command.equals("stop")) {
+			output += "Stopping WebSocket server\n";
+			this.ws.stopServer();
+			
 		} else {
-			output = timestamp + " Server: " + command + " is not a recognized command, type 'help' for a list of commands\n";
+			output += command + " is not a recognized command, type 'help' for a list of commands\n";
 		}
 		logArea.append(output);
-	}
-
-	public static void main(String[] args) {
-		new WebSocketGUI();
 	}
 }
