@@ -107,8 +107,8 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			output += "Listing all available commands\n" + "q - Terminate WebSocket\n";
 			
 		} else if (command.equals("start")) {
-			output += "Starting WebSocket server at port 3000\n";
-			this.ws.startServer(3000);
+			output += "Starting WebSocket server at port 3002\n";
+			this.ws.startServer(3002);
 			
 		} else if (command.equals("stop")) {
 			output += "Stopping WebSocket server\n";

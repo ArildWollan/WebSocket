@@ -1,28 +1,30 @@
-package ws.server;
-
+package ws;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-public class Server {
-	
-	public static void main(String args[]) throws IOException {
-		int portnumber = 3002;
-		System.out.println("Web server started - Ready to accept connections on port " + portnumber);
-		ServerSocket server = new ServerSocket(portnumber);
+import ws.server.ServerUtils;
 
-		while (true) {
-			Socket connection = server.accept();
+public class WebSocketConnection implements Runnable {
+	private Socket connection;
+	private WebSocket server;
+	
+	public WebSocketConnection(Socket connection, WebSocket server) {
+		this.connection = connection;
+		this.server = server;
+	}
+
+	@Override
+	public void run() {
+		try {
 			System.out.println("\n"+connection.getInetAddress().getHostAddress() + " has connected");
-			InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+			InputStreamReader isr = new InputStreamReader(this.connection.getInputStream());
 			BufferedReader br = new BufferedReader(isr);
-			PrintWriter pw = new PrintWriter(connection.getOutputStream());
+			PrintWriter pw = new PrintWriter(this.connection.getOutputStream());
 			
 			ArrayList<String> clientheaders = new ArrayList<>();
 			ServerUtils.readClientHeaders(br, clientheaders);
@@ -39,19 +41,22 @@ public class Server {
 			//TODO: Support several clients
 			while(true) {
 				// Waiting to read from connected client.
-				connection.getInputStream().read(frame);
+				this.connection.getInputStream().read(frame);
 				// Parse the byte array to get the actual payload.
 				String message = new String(ServerUtils.getPayloadFromFrame(frame), Charset.forName("UTF-8"));
-				// Send the message back to the client and flush.
-				connection.getOutputStream().write(ServerUtils.getFrameFromPayload(message));
-			    connection.getOutputStream().flush();
+				// Send the message back to all the client and flush.
+				// TODO: handle concurrency with something like mutex
+				for(Socket s : this.server.getConnections()){
+					s.getOutputStream().write(ServerUtils.getFrameFromPayload(message));
+				    s.getOutputStream().flush();					
+				}
+				
 			}
 			
-			// Close connection, we´ll never get here with the loop above.
-			// TODO: close connection if anything crashes. Remember Close handshake!
-			//connection.close();
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
-	}
 
+	}
 
 }

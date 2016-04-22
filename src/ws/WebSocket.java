@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
 
@@ -13,7 +14,14 @@ public class WebSocket {
 
 	private ServerSocket server;
 	private boolean running;
-
+	private ArrayList<Socket> connections = new ArrayList<>();
+	private WebSocket mainWebSocketServer = this;
+	
+	
+	public synchronized ArrayList<Socket> getConnections(){
+		return connections;
+	}
+	
 	public void startServer(int portnum) {
 		running = true;
 		runServer(portnum);
@@ -30,6 +38,7 @@ public class WebSocket {
 	}
 
 	private void runServer(int portnum) {
+		System.out.println("In runServer");
 		Thread serverThread = new Thread() {
 
 			public void run() {
@@ -40,9 +49,9 @@ public class WebSocket {
 					while (running) {
 						System.out.println("Waiting for connections");
 						try {
-							Socket connection = server.accept();
-							
-							// Start each new connection in separate thread here
+							Socket conn = server.accept();
+							connections.add(conn);
+				            new Thread(new WebSocketConnection(conn, mainWebSocketServer)).start();
 							
 						} catch (SocketException e) {
 
@@ -58,7 +67,6 @@ public class WebSocket {
 
 	public static void main(String args[]) throws IOException {
 		WebSocket ws = new WebSocket();
-
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				new WebSocketGUI(ws);
