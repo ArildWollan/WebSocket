@@ -31,6 +31,7 @@ public class WebSocket {
 		running = false;
 
 		try {
+			if(server != null && !server.isClosed())
 			server.close();
 		} catch (IOException e) {
 			e.printStackTrace();
