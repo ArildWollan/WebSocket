@@ -23,10 +23,10 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = -906662423360329760L;
 	private JTextArea logArea = new JTextArea();
-	private JTextArea userArea = new JTextArea();
+	private JTextArea connectionsArea = new JTextArea();
 	private JTextField commandField = new JTextField();
 	private JScrollPane logPane = new JScrollPane(logArea);
-	private JScrollPane userPane = new JScrollPane(userArea);
+	private JScrollPane connectionsPane = new JScrollPane(connectionsArea);
 	private WebSocket ws;
 
 	public WebSocketGUI(WebSocket ws) {
@@ -54,16 +54,16 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		logPane.setPreferredSize(logDimension);
 		logPane.setBorder(new CompoundBorder(logBorder, lineBorder));
 
-		userArea.setLineWrap(true);
-		userArea.setWrapStyleWord(true);
-		userArea.setEditable(false);
-		userArea.setMargin(new Insets(5, 5, 5, 5));
-		userArea.append("Active connections\n\n");
+		connectionsArea.setLineWrap(true);
+		connectionsArea.setWrapStyleWord(true);
+		connectionsArea.setEditable(false);
+		connectionsArea.setMargin(new Insets(5, 5, 5, 5));
+		connectionsArea.append("Active connections\n\n");
 
-		userPane.setMinimumSize(userDimension);
-		userPane.setMaximumSize(userDimension);
-		userPane.setPreferredSize(userDimension);
-		userPane.setBorder(new CompoundBorder(userBorder, lineBorder));
+		connectionsPane.setMinimumSize(userDimension);
+		connectionsPane.setMaximumSize(userDimension);
+		connectionsPane.setPreferredSize(userDimension);
+		connectionsPane.setBorder(new CompoundBorder(userBorder, lineBorder));
 
 		commandField.setMinimumSize(commandDimension);
 		commandField.setMaximumSize(commandDimension);
@@ -72,7 +72,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		commandField.addKeyListener(this);
 
 		add(logPane, BorderLayout.CENTER);
-		add(userPane, BorderLayout.EAST);
+		add(connectionsPane, BorderLayout.EAST);
 		add(commandField, BorderLayout.SOUTH);
 
 		pack();
@@ -82,10 +82,12 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) {}
+	public void keyTyped(KeyEvent e) {
+	}
 
 	@Override
-	public void keyReleased(KeyEvent e) {}
+	public void keyReleased(KeyEvent e) {
+	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -98,25 +100,31 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	public void executeCommand(String command) {
 		String timestamp = TimeUtility.getTimeStamp();
 		String output = timestamp + " Server: ";
-		
-		// execute command
+
 		if (command.equals("q")) {
 			System.exit(0);
-			
+
 		} else if (command.equals("help")) {
 			output += "Listing all available commands\n" + "q - Terminate WebSocket\n";
-			
-		} else if (command.equals("start")) {
-			output += "Starting WebSocket server at port 3002\n";
-			this.ws.startServer(3002);
-			
+
+		} else if (command.split("\\s+")[0].equals("start")) {
+			int port = Integer.parseInt(command.split("\\s+")[1]); 
+			output += "Starting WebSocket server at port " + port + "\n";
+			this.ws.startServer(port);
+
 		} else if (command.equals("stop")) {
 			output += "Stopping WebSocket server\n";
 			this.ws.stopServer();
-			
+
 		} else {
 			output += command + " is not a recognized command, type 'help' for a list of commands\n";
 		}
 		logArea.append(output);
+	}
+
+	public void addConnection(String connection) {
+		String timestamp = TimeUtility.getTimeStamp();
+		connectionsArea.append(connection + "\n");
+		logArea.append(timestamp + " " + connection + " has connected\n");
 	}
 }

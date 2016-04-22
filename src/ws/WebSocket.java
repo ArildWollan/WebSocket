@@ -16,12 +16,12 @@ public class WebSocket {
 	private boolean running;
 	private ArrayList<Socket> connections = new ArrayList<>();
 	private WebSocket mainWebSocketServer = this;
-	
-	
-	public synchronized ArrayList<Socket> getConnections(){
+	private WebSocketGUI gui;
+
+	public synchronized ArrayList<Socket> getConnections() {
 		return connections;
 	}
-	
+
 	public void startServer(int portnum) {
 		running = true;
 		runServer(portnum);
@@ -31,8 +31,8 @@ public class WebSocket {
 		running = false;
 
 		try {
-			if(server != null && !server.isClosed())
-			server.close();
+			if (server != null && !server.isClosed())
+				server.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -52,8 +52,9 @@ public class WebSocket {
 						try {
 							Socket conn = server.accept();
 							connections.add(conn);
-				            new Thread(new WebSocketConnection(conn, mainWebSocketServer)).start();
-							
+							gui.addConnection(conn.getInetAddress().getHostAddress());
+							new Thread(new WebSocketConnection(conn, mainWebSocketServer)).start();
+
 						} catch (SocketException e) {
 
 						}
@@ -66,11 +67,17 @@ public class WebSocket {
 		serverThread.start();
 	}
 
+	public void setGUI(WebSocketGUI gui) {
+		this.gui = gui;
+	}
+
 	public static void main(String args[]) throws IOException {
 		WebSocket ws = new WebSocket();
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				new WebSocketGUI(ws);
+				WebSocketGUI gui = new WebSocketGUI(ws);
+				ws.setGUI(gui);
 			}
 		});
 	}

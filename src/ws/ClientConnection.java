@@ -23,6 +23,7 @@ public class ClientConnection {
 		
 		while (true) {
 			System.out.println(connection.getInetAddress().getHostAddress() + " has connected");
+			System.out.println(connection.getRemoteSocketAddress().toString());
 			
 			is = connection.getInputStream();
 			isr = new InputStreamReader(connection.getInputStream());
