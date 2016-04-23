@@ -6,6 +6,10 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -25,12 +29,17 @@ import ws.utils.TimeUtility;
 public class WebSocketGUI extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = -906662423360329760L;
+
 	private JTextArea logArea = new JTextArea();
 	private JTextArea connectionsArea = new JTextArea();
 	private JTextField commandField = new JTextField();
 	private JScrollPane logPane = new JScrollPane(logArea);
 	private JScrollPane connectionsPane = new JScrollPane(connectionsArea);
+
 	private HashMap<String, String> commands = FileHandler.loadCommands("txt/commands.txt");
+	ArrayList<String> commandHistory = new ArrayList<String>();
+	private int selectedCommand = 0;
+
 	private WebSocket ws;
 
 	public WebSocketGUI(WebSocket ws) {
@@ -62,7 +71,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		connectionsArea.setWrapStyleWord(true);
 		connectionsArea.setEditable(false);
 		connectionsArea.setMargin(new Insets(5, 5, 5, 5));
-		connectionsArea.append("Active connections\n\n");
+		connectionsArea.append("Active connections (0 / " + ws.getMaxConnections() + ")\n\n");
 
 		connectionsPane.setMinimumSize(userDimension);
 		connectionsPane.setMaximumSize(userDimension);
@@ -95,9 +104,24 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+
+		// Send command
 		if (e.getKeyCode() == KeyEvent.VK_ENTER && commandField.getText().trim().length() > 0) {
-			executeCommand(commandField.getText());
+			String command = commandField.getText();
+			executeCommand(command);
+			commandHistory.add(command);
+			selectedCommand = commandHistory.size();
 			commandField.setText("");
+
+			// Step backward in command history
+		} else if (e.getKeyCode() == KeyEvent.VK_UP && selectedCommand > 0) {
+			selectedCommand--;
+			commandField.setText(commandHistory.get(selectedCommand));
+
+			// Step forward in command history
+		} else if (e.getKeyCode() == KeyEvent.VK_DOWN && selectedCommand < commandHistory.size() - 1) {
+			selectedCommand++;
+			commandField.setText(commandHistory.get(selectedCommand));
 		}
 	}
 
@@ -106,12 +130,12 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		String output = timestamp;
 
 		// Terminate application
-		if (command.equals("q")) {
+		if (command.equals("exit")) {
 			System.exit(0);
 
 			// Display all commands
 		} else if (command.equals("help")) {
-			output += " Server: Listing all available commands\n";
+			output += " Server: ---- Listing all available commands ----\n";
 			logArea.append(output);
 
 			for (Entry<String, String> entry : commands.entrySet()) {
@@ -125,10 +149,12 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		{
 			try {
 				int port = Integer.parseInt(command.split("\\s")[1]);
-
 				if (port >= 1024 && port <= 65535) {
-					output += " Server: WebSocket started and ready to accept connections on port " + port + "\n";
-					this.ws.startServer(port);
+					if (this.ws.startServer(port)) {
+						output += " Server: WebSocket started and ready to accept connections on port " + port + "\n";
+					} else {
+						output += " ERROR: WebSocket already running! - Type 'stop' to stop it\n";
+					}
 				} else {
 					output += " ERROR: Port number must be in range (1024 - 65535)\n";
 				}
@@ -139,9 +165,42 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 
 			// Stop server
 		} else if (command.equals("stop")) {
-			this.ws.stopServer();
-			output += " Server: WebSocket stopped\n";
+			if (this.ws.stopServer()) {
+				ws.removeAllConnections();
+				updateConnectionsArea();
+				output += " Server: WebSocket stopped, all connections closed\n";
+			} else {
+				output += " ERROR: No server running!\n";
+			}
 			logArea.append(output);
+
+			// Set max number of connections
+		} else if (command.split("\\s+")[0].equals("max") && command.split("\\s+").length == 2) {
+			try {
+				int max = Integer.parseInt(command.split("\\s+")[1]);
+
+				if (max >= 1 && max <= 1000) {
+					ws.setMaxClients(max);
+					updateConnectionsArea();
+					output += " Server: Max number of connections set to " + max + "\n";
+				} else {
+					output += " ERROR: Max number of connections must be a number between 1 and 1000\n";
+				}
+
+			} catch (NumberFormatException e) {
+				output += " ERROR: Max number of connections must be a number between 1 and 1000\n";
+			}
+			logArea.append(output);
+
+			// Save log file
+		} else if (command.equals("save")) {
+			saveLogFile();
+			output += " Server: Saved logfile at txt/wslog.txt";
+			logArea.append(output);
+
+			// Clear log window
+		} else if (command.equals("clear")) {
+			logArea.setText("Server log\n\n");
 
 			// Display error message
 		} else {
@@ -150,9 +209,44 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	private void saveLogFile() {
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter("txt/wslog.txt", "UTF-8");
+			writer.println(logArea.getText().trim());
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void updateConnectionsArea() {
+		int numConnections = ws.getConnections().size();
+		int maxConnections = ws.getMaxConnections();
+		connectionsArea.setText("Active connections (" + numConnections + " / " + maxConnections + ")\n\n");
+
+		for (int i = 0; i < numConnections; i++) {
+			connectionsArea.append((i + 1) + ".  " + ws.getConnections().get(i).getInetAddress().getHostAddress()+"\n");
+		}
+	}
+
 	public void addConnection(String connection) {
 		String timestamp = TimeUtility.getTimeStamp();
-		connectionsArea.append(connection + "\n");
 		logArea.append(timestamp + " " + connection + " has connected\n");
+		updateConnectionsArea();
+	}
+
+	public void removeConnection(String connection) {
+		String timestamp = TimeUtility.getTimeStamp();
+		logArea.append(timestamp + " " + connection + " has disconnected\n");
+		updateConnectionsArea();
+
+	}
+
+	public void logMessage(String source, String message) {
+		String timestamp = TimeUtility.getTimeStamp();
+		logArea.append(timestamp + " " + source + ": " + message + "\n");
 	}
 }

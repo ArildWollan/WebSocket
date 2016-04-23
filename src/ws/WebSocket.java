@@ -17,25 +17,34 @@ public class WebSocket {
 	private ArrayList<Socket> connections = new ArrayList<>();
 	private WebSocket mainWebSocketServer = this;
 	private WebSocketGUI gui;
-	private int MAXCLIENTS = 100;
+	private int maxConnections = 100;
 	
 	public synchronized ArrayList<Socket> getConnections() {
 		return connections;
 	}
 
-	public void startServer(int portnum) {
-		running = true;
-		runServer(portnum);
+	public boolean startServer(int portnum) {
+		if(!running) {
+			running = true;
+			runServer(portnum);			
+			return true;
+		}
+		return false;
 	}
 
-	public void stopServer() {
-		running = false;
-
-		try {
-			if (server != null && !server.isClosed())
-				server.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public boolean stopServer() {
+		if(running) {
+			running = false;
+			try {
+				if (server != null && !server.isClosed()) {
+					server.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return true;		
+		} else {
+			return false;
 		}
 	}
 
@@ -48,7 +57,7 @@ public class WebSocket {
 					server = new ServerSocket(portnum);
 
 					while (running) {
-						if (connections.size() < MAXCLIENTS) {
+						if (connections.size() < maxConnections) {
 							try {
 								Socket conn = server.accept();
 								connections.add(conn);
@@ -75,11 +84,7 @@ public class WebSocket {
 		};
 		serverThread.start();
 	}
-
-	public void setGUI(WebSocketGUI gui) {
-		this.gui = gui;
-	}
-
+	
 	synchronized public void broadcast(WebSocketMessage message) {
 		for(Socket s : connections){
 			try {
@@ -95,7 +100,29 @@ public class WebSocket {
 	public void removeConnection(Socket connection) {
 		connections.remove(connection);
 		System.out.println(connection.getInetAddress().getHostAddress() + " has disconnected, clients: " + connections.size());
+		gui.removeConnection(connection.getInetAddress().getHostAddress());
+	}
+	
+	public void removeAllConnections() {
+		if(!connections.isEmpty()) {
+			connections.removeAll(connections);
+		}
+	}
+	
+	public WebSocketGUI getGUI() {
+		return gui;
+	}
 
+	public void setGUI(WebSocketGUI gui) {
+		this.gui = gui;
+	}
+	
+	public int getMaxConnections() {
+		return maxConnections;
+	}
+	
+	public void setMaxClients(int maxClients) {
+		this.maxConnections = maxClients;
 	}
 
 	public static void main(String args[]) throws IOException {
