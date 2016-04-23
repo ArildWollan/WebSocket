@@ -1,4 +1,5 @@
-q-Terminate WebSocket application
-stop-Stop WebSocket server
 start <port number>-Start WebSocket server at specified port
-save-Saves all the text in the log window to a log file
+stop-Stop WebSocket server
+save-Save all text in the log window to file
+clear-Clear the log window
+exit-Close program

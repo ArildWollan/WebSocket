@@ -130,12 +130,12 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		String output = timestamp;
 
 		// Terminate application
-		if (command.equals("q")) {
+		if (command.equals("exit")) {
 			System.exit(0);
 
 			// Display all commands
 		} else if (command.equals("help")) {
-			output += " Server: Listing all available commands\n";
+			output += " Server: ---- Listing all available commands ----\n";
 			logArea.append(output);
 
 			for (Entry<String, String> entry : commands.entrySet()) {
@@ -177,7 +177,11 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			saveLogFile();
 			output += " Server: Saved logfile at txt/wslog.txt";
 			logArea.append(output);
-
+			
+			// Clear log window
+		} else if (command.equals("clear")) {
+			logArea.setText("Server log\n\n");
+			
 			// Display error message
 		} else {
 			output += " ERROR: " + command + " is not a recognized command, type 'help' for a list of commands\n";
