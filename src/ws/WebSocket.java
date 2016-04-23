@@ -17,7 +17,7 @@ public class WebSocket {
 	private ArrayList<Socket> connections = new ArrayList<>();
 	private WebSocket mainWebSocketServer = this;
 	private WebSocketGUI gui;
-	private int maxClients = 100;
+	private int maxConnections = 100;
 	
 	public synchronized ArrayList<Socket> getConnections() {
 		return connections;
@@ -57,7 +57,7 @@ public class WebSocket {
 					server = new ServerSocket(portnum);
 
 					while (running) {
-						if (connections.size() < maxClients) {
+						if (connections.size() < maxConnections) {
 							try {
 								Socket conn = server.accept();
 								connections.add(conn);
@@ -100,6 +100,7 @@ public class WebSocket {
 	public void removeConnection(Socket connection) {
 		connections.remove(connection);
 		System.out.println(connection.getInetAddress().getHostAddress() + " has disconnected, clients: " + connections.size());
+		gui.removeConnection(connection.getInetAddress().getHostAddress());
 	}
 	
 	public WebSocketGUI getGUI() {
@@ -110,12 +111,12 @@ public class WebSocket {
 		this.gui = gui;
 	}
 	
-	public int getMaxClients() {
-		return maxClients;
+	public int getMaxConnections() {
+		return maxConnections;
 	}
 	
 	public void setMaxClients(int maxClients) {
-		this.maxClients = maxClients;
+		this.maxConnections = maxClients;
 	}
 
 	public static void main(String args[]) throws IOException {

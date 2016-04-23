@@ -71,7 +71,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		connectionsArea.setWrapStyleWord(true);
 		connectionsArea.setEditable(false);
 		connectionsArea.setMargin(new Insets(5, 5, 5, 5));
-		connectionsArea.append("Active connections (0 / " + ws.getMaxClients() + ")\n\n");
+		connectionsArea.append("Active connections (0 / " + ws.getMaxConnections() + ")\n\n");
 
 		connectionsPane.setMinimumSize(userDimension);
 		connectionsPane.setMaximumSize(userDimension);
@@ -178,10 +178,8 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 				int max = Integer.parseInt(command.split("\\s+")[1]);
 
 				if (max >= 1 && max <= 1000) {
-					connectionsArea.setSelectionStart(23 + String.valueOf(ws.getConnections().size()).length());
-					connectionsArea.setSelectionEnd(24 + String.valueOf(ws.getMaxClients()).length());
-					connectionsArea.replaceSelection(Integer.toString(max));
 					ws.setMaxClients(max);
+					updateConnectionsArea();
 					output += " Server: Max number of connections set to " + max + "\n";
 				} else {
 					output += " ERROR: Max number of connections must be a number between 1 and 1000\n";
@@ -222,15 +220,27 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	public void updateConnectionsArea() {
+		int numConnections = ws.getConnections().size();
+		int maxConnections = ws.getMaxConnections();
+		connectionsArea.setText("Active connections (" + numConnections + " / " + maxConnections + ")\n\n");
+
+		for (int i = 0; i < numConnections; i++) {
+			connectionsArea.append((i + 1) + ".  " + ws.getConnections().get(i).getInetAddress().getHostAddress()+"\n");
+		}
+	}
+
 	public void addConnection(String connection) {
 		String timestamp = TimeUtility.getTimeStamp();
-
-		// Update connections area
-		connectionsArea.setSelectionStart(20);
-		connectionsArea.setSelectionEnd(20 + String.valueOf(ws.getConnections().size()).length());
-		connectionsArea.replaceSelection(Integer.toString(ws.getConnections().size()));
-		connectionsArea.append(connection + "\n");
 		logArea.append(timestamp + " " + connection + " has connected\n");
+		updateConnectionsArea();
+	}
+
+	public void removeConnection(String connection) {
+		String timestamp = TimeUtility.getTimeStamp();
+		logArea.append(timestamp + " " + connection + " has disconnected\n");
+		updateConnectionsArea();
+
 	}
 
 	public void logMessage(String source, String message) {
