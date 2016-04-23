@@ -9,6 +9,7 @@ import java.awt.event.KeyListener;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -28,12 +29,17 @@ import ws.utils.TimeUtility;
 public class WebSocketGUI extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = -906662423360329760L;
+
 	private JTextArea logArea = new JTextArea();
 	private JTextArea connectionsArea = new JTextArea();
 	private JTextField commandField = new JTextField();
 	private JScrollPane logPane = new JScrollPane(logArea);
 	private JScrollPane connectionsPane = new JScrollPane(connectionsArea);
+
 	private HashMap<String, String> commands = FileHandler.loadCommands("txt/commands.txt");
+	ArrayList<String> commandHistory = new ArrayList<String>();
+	private int selectedCommand = 0;
+
 	private WebSocket ws;
 
 	public WebSocketGUI(WebSocket ws) {
@@ -98,9 +104,24 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+
+		// Send command
 		if (e.getKeyCode() == KeyEvent.VK_ENTER && commandField.getText().trim().length() > 0) {
-			executeCommand(commandField.getText());
+			String command = commandField.getText();
+			executeCommand(command);
+			commandHistory.add(command);
+			selectedCommand = commandHistory.size();
 			commandField.setText("");
+
+			// Step backward in command history
+		} else if (e.getKeyCode() == KeyEvent.VK_UP && selectedCommand > 0) {
+			selectedCommand--;
+			commandField.setText(commandHistory.get(selectedCommand));
+
+			// Step forward in command history
+		} else if (e.getKeyCode() == KeyEvent.VK_DOWN && selectedCommand < commandHistory.size() - 1) {
+			selectedCommand++;
+			commandField.setText(commandHistory.get(selectedCommand));
 		}
 	}
 
@@ -134,7 +155,6 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 					} else {
 						output += " ERROR: WebSocket already running! - Type 'stop' to stop it\n";
 					}
-
 				} else {
 					output += " ERROR: Port number must be in range (1024 - 65535)\n";
 				}
@@ -155,7 +175,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			// Save log file
 		} else if (command.equals("save")) {
 			saveLogFile();
-			output += " Saved logfile at txt/wslog.txt";
+			output += " Server: Saved logfile at txt/wslog.txt";
 			logArea.append(output);
 
 			// Display error message
@@ -183,7 +203,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		connectionsArea.append(connection + "\n");
 		logArea.append(timestamp + " " + connection + " has connected\n");
 	}
-	
+
 	public void logMessage(String source, String message) {
 		String timestamp = TimeUtility.getTimeStamp();
 		logArea.append(timestamp + " " + source + ": " + message + "\n");
