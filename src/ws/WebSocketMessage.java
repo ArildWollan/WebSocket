@@ -23,7 +23,6 @@ public class WebSocketMessage {
 		boolean masked = ((b[1] & 0x80) != 0);
 		long payloadLength = (byte) (0x7F & b[1]);
 		int byteCount = 0;
-		System.out.println("Payload length 1: " + payloadLength);
 		if (payloadLength == 0x7F) {
 			// 8 byte extended payload length
 			byteCount = 8;
