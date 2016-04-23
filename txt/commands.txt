@@ -3,3 +3,4 @@ stop-Stop WebSocket server
 save-Save all text in the log window to file
 clear-Clear the log window
 exit-Close program
+max <number>-Set maximum number of connections

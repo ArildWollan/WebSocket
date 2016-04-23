@@ -71,7 +71,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		connectionsArea.setWrapStyleWord(true);
 		connectionsArea.setEditable(false);
 		connectionsArea.setMargin(new Insets(5, 5, 5, 5));
-		connectionsArea.append("Active connections\n\n");
+		connectionsArea.append("Active connections (0 / " + ws.getMaxClients() + ")\n\n");
 
 		connectionsPane.setMinimumSize(userDimension);
 		connectionsPane.setMaximumSize(userDimension);
@@ -172,16 +172,36 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			}
 			logArea.append(output);
 
+			// Set max number of connections
+		} else if (command.split("\\s+")[0].equals("max") && command.split("\\s+").length == 2) {
+			try {
+				int max = Integer.parseInt(command.split("\\s+")[1]);
+
+				if (max >= 1 && max <= 1000) {
+					connectionsArea.setSelectionStart(23 + String.valueOf(ws.getConnections().size()).length());
+					connectionsArea.setSelectionEnd(24 + String.valueOf(ws.getMaxClients()).length());
+					connectionsArea.replaceSelection(Integer.toString(max));
+					ws.setMaxClients(max);
+					output += " Server: Max number of connections set to " + max + "\n";
+				} else {
+					output += " ERROR: Max number of connections must be a number between 1 and 1000\n";
+				}
+
+			} catch (NumberFormatException e) {
+				output += " ERROR: Max number of connections must be a number between 1 and 1000\n";
+			}
+			logArea.append(output);
+
 			// Save log file
 		} else if (command.equals("save")) {
 			saveLogFile();
 			output += " Server: Saved logfile at txt/wslog.txt";
 			logArea.append(output);
-			
+
 			// Clear log window
 		} else if (command.equals("clear")) {
 			logArea.setText("Server log\n\n");
-			
+
 			// Display error message
 		} else {
 			output += " ERROR: " + command + " is not a recognized command, type 'help' for a list of commands\n";
@@ -204,6 +224,11 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 
 	public void addConnection(String connection) {
 		String timestamp = TimeUtility.getTimeStamp();
+
+		// Update connections area
+		connectionsArea.setSelectionStart(20);
+		connectionsArea.setSelectionEnd(20 + String.valueOf(ws.getConnections().size()).length());
+		connectionsArea.replaceSelection(Integer.toString(ws.getConnections().size()));
 		connectionsArea.append(connection + "\n");
 		logArea.append(timestamp + " " + connection + " has connected\n");
 	}

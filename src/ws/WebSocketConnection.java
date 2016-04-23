@@ -46,7 +46,8 @@ public class WebSocketConnection implements Runnable {
 				WebSocketMessage receivedMsg = new WebSocketMessage(bytebuf);
 				if (!receivedMsg.isDisconnect()) {
 					server.broadcast(receivedMsg);
-					server.getGUI().logMessage(connection.getInetAddress().getHostAddress(), receivedMsg.getPayloadAsString());
+					server.getGUI().logMessage(connection.getInetAddress().getHostAddress(),
+							receivedMsg.getPayloadAsString());
 				} else {
 					disconnected = true;
 				}
