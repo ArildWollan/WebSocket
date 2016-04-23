@@ -1,12 +1,10 @@
 package ws.server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.Map;
 
 public class ServerUtils {	
 
@@ -33,15 +31,7 @@ public class ServerUtils {
 		return "Sec-WebSocket-Key: NOT FOUND";
 		
 	}
-
-	public static void readClientHeaders(BufferedReader br, ArrayList<String> clientheaders) throws IOException {
-		String line = br.readLine();
-		clientheaders.add(line);			
-		while(line.trim().length() != 0) {
-			line = br.readLine();
-			clientheaders.add(line);
-		}
-		
+	public static String parseAndGetWebsocketAccept(Map<String, String> clientheaders) {
+		return getSecWebsocketAccept(clientheaders.get("Sec-WebSocket-Key"));
 	}
-
 }

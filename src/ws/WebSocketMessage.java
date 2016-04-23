@@ -1,56 +1,66 @@
 package ws;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 public class WebSocketMessage {
-
 	private boolean fin;
 	private int opcode;
 	private int payloadLength;
 	private byte[] payload;
-	
-	public WebSocketMessage(byte[] maskeddata){
-		
-		// Check if final fragment
-		// 0x80 masks the first bit
-		if ((maskeddata[0] & 0x80) == 1) {
-			fin = true;
-		}
-		
-		// get opcode, 
-		// 0x0F masks the last four bit
-		opcode = (maskeddata[0] & 0x0F);
-		
-		//get the paload length
-		// 0x7F masks the last 7 bit
-		// TODO: fix if payload.size is 126 or 127, which means 3 or 9 bytes
-		payloadLength = (maskeddata[1] & 0x7F);
-		
-		int maskIndex = 2;
-		
-		byte[] maskBytes = new byte[4];
 
-		// move start index if payload lenght is 126 or 127.
-		if ((maskeddata[1] & 0x7f) == 126) {
-			maskIndex = 4;
-		} else if ((maskeddata[1] & 0x7f) == 127) {
-			maskIndex = 10;
-		}
+	public WebSocketMessage(InputStream inputStream) throws IOException {
 
-		System.arraycopy(maskeddata, maskIndex, maskBytes, 0, 4);
+		// Fin + OpCode byte
+		byte[] b = new byte[2];
+		inputStream.read(b);
+		fin = ((b[0] & 0x80) != 0);
+		opcode = (byte) (b[0] & 0x0F);
 
-		byte[] message = new byte[maskeddata.length - maskIndex - 4];
-		// Section 5.3 of RFC6455
-		for (int i = maskIndex + 4; i < maskeddata.length; i++) {
-			message[i - maskIndex - 4] = (byte) (maskeddata[i] ^ maskBytes[(i - maskIndex - 4) % 4]);
+		// Masked + Payload Length
+		boolean masked = ((b[1] & 0x80) != 0);
+		long payloadLength = (byte) (0x7F & b[1]);
+		int byteCount = 0;
+		System.out.println("Payload length 1: " + payloadLength);
+		if (payloadLength == 0x7F) {
+			// 8 byte extended payload length
+			byteCount = 8;
+			byte[] payloadLengthByteArray = new byte[byteCount];
+			inputStream.read(payloadLengthByteArray);
+			ByteBuffer wrapped = ByteBuffer.wrap(payloadLengthByteArray);
+			payloadLength = wrapped.getLong(); // Long because it's 8 bytes.
+		} else if (payloadLength == 0x7E) {
+			// 2 bytes extended payload length
+			byteCount = 2;
+			byte[] payloadLengthByteArray = new byte[byteCount];
+			inputStream.read(payloadLengthByteArray);
+			ByteBuffer wrapped = ByteBuffer.wrap(payloadLengthByteArray);
+			payloadLength = wrapped.getShort(); // short because it's only two
+												// bytes
 		}
 
-		payload =  Arrays.copyOfRange(message, 0, payloadLength);
-		
+		byte maskingKey[] = null;
+		if (masked) {
+			// Masking Key
+			maskingKey = new byte[4];
+			inputStream.read(maskingKey);
+		}
+
+		// Payload itself, casting to int TODO: What if payload is bigget than
+		// an int?
+		payload = new byte[(int) payloadLength];
+		inputStream.read(payload);
+		if (masked) {
+			for (int i = 0; i < payload.length; i++) {
+				payload[i] ^= maskingKey[i % 4];
+			}
+		}
+
 	}
-		
-	public byte[] getFrame(){
+
+	public byte[] getFrame() {
 		byte[] rawData = payload;
 
 		int maskIndex = 0;
@@ -104,10 +114,10 @@ public class WebSocketMessage {
 		return fin;
 	}
 
-	public boolean isDisconnect(){
+	public boolean isDisconnect() {
 		return opcode == 8;
 	}
-	
+
 	public int getOpcode() {
 		return opcode;
 	}
@@ -119,9 +129,9 @@ public class WebSocketMessage {
 	public byte[] getPayload() {
 		return payload;
 	}
-	
-	public String getPayloadAsString(){
+
+	public String getPayloadAsString() {
 		return new String(payload, Charset.forName("UTF-8"));
 	}
-	
+
 }
