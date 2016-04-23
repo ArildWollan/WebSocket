@@ -103,6 +103,12 @@ public class WebSocket {
 		gui.removeConnection(connection.getInetAddress().getHostAddress());
 	}
 	
+	public void removeAllConnections() {
+		if(!connections.isEmpty()) {
+			connections.removeAll(connections);
+		}
+	}
+	
 	public WebSocketGUI getGUI() {
 		return gui;
 	}

@@ -166,7 +166,9 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			// Stop server
 		} else if (command.equals("stop")) {
 			if (this.ws.stopServer()) {
-				output += " Server: WebSocket stopped\n";
+				ws.removeAllConnections();
+				updateConnectionsArea();
+				output += " Server: WebSocket stopped, all connections closed\n";
 			} else {
 				output += " ERROR: No server running!\n";
 			}
