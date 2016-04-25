@@ -47,7 +47,7 @@ public class WebSocketMessage {
 			inputStream.read(maskingKey);
 		}
 
-		// Payload itself, casting to int TODO: What if payload is bigget than
+		// Payload itself, casting to int TODO: What if payload is bigger than
 		// an int?
 		payload = new byte[(int) payloadLength];
 		inputStream.read(payload);
