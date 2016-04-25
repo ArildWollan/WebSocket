@@ -1,30 +1,13 @@
 Server log
 
-[24.04.2016 - 11:20:43] Server: WebSocket started and ready to accept connections on port 3002
-[24.04.2016 - 11:21:33] 0:0:0:0:0:0:0:1 has connected
-[24.04.2016 - 11:21:33] 0:0:0:0:0:0:0:1 has disconnected
-[24.04.2016 - 11:21:33] 0:0:0:0:0:0:0:1 has connected
-[24.04.2016 - 11:21:44] 0:0:0:0:0:0:0:1 has connected
-[24.04.2016 - 11:21:44] 0:0:0:0:0:0:0:1 has disconnected
-[24.04.2016 - 11:21:44] 0:0:0:0:0:0:0:1 has connected
-[24.04.2016 - 11:21:51] 0:0:0:0:0:0:0:1: {"message":{"time":"2016-04-24T09:21:51.927Z","name":"Anonymous","msg":"hey"}}
-[24.04.2016 - 11:21:58] 0:0:0:0:0:0:0:1: {"message":{"time":"2016-04-24T09:21:58.605Z","name":"Anonymous","msg":""}}
-[24.04.2016 - 11:22:03] 0:0:0:0:0:0:0:1: {"message":{"time":"2016-04-24T09:22:03.268Z","name":"Anonymous","msg":"asdasd"}}
-[24.04.2016 - 11:22:18] Server: Max number of connections set to 1
-[24.04.2016 - 11:22:21] Server: Max number of connections set to 4
-[24.04.2016 - 11:22:26] 0:0:0:0:0:0:0:1 has connected
-[24.04.2016 - 11:22:26] 0:0:0:0:0:0:0:1 has disconnected
-[24.04.2016 - 11:22:26] 0:0:0:0:0:0:0:1 has connected
-[24.04.2016 - 11:22:30] 0:0:0:0:0:0:0:1 has connected
-[24.04.2016 - 11:22:48] 0:0:0:0:0:0:0:1 has disconnected
-[24.04.2016 - 11:22:50] 0:0:0:0:0:0:0:1 has connected
-[24.04.2016 - 11:22:56] 0:0:0:0:0:0:0:1 has disconnected
-[24.04.2016 - 11:23:03] ERROR: asd is not a recognized command, type 'help' for a list of commands
-[24.04.2016 - 11:23:05] Server: ---- Listing all available commands ----
-[24.04.2016 - 11:23:05] Server: exit  -  Close program
-[24.04.2016 - 11:23:05] Server: stop  -  Stop WebSocket server
-[24.04.2016 - 11:23:05] Server: start <port number>  -  Start WebSocket server at specified port
-[24.04.2016 - 11:23:05] Server: save  -  Save all text in the log window to file
-[24.04.2016 - 11:23:05] Server: clear  -  Clear the log window
-[24.04.2016 - 11:23:05] Server: max <number>  -  Set maximum number of connections
-[24.04.2016 - 11:23:21] Server: WebSocket stopped, all connections closed
+[25.04.2016 - 17:36:47] Server: Web socket server started and ready to accept connections on port 3002
+[25.04.2016 - 17:36:48] Server: Displaying all available commands
+[25.04.2016 - 17:36:48] Server: start - Start web socket server at standard port: 3002
+[25.04.2016 - 17:36:48] Server: start [port number] - Start web socket server at specified port
+[25.04.2016 - 17:36:48] Server: stop - Stop web socket server and create log file
+[25.04.2016 - 17:36:48] Server: max [number] - Set maximum number of connections
+[25.04.2016 - 17:36:48] Server: save - Save all text in the log window to file
+[25.04.2016 - 17:36:48] Server: clear - Clear the log window
+[25.04.2016 - 17:36:48] Server: help - Display this message
+[25.04.2016 - 17:36:48] Server: exit - Close web socket server and exit program
+[25.04.2016 - 17:36:53] 0:0:0:0:0:0:0:1 has connected

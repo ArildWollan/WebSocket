@@ -8,7 +8,7 @@
     <script type="text/javascript">
 
       var name = "test";
-      var ws = new WebSocket("ws://158.38.188.94:3002");
+      var ws = new WebSocket("ws://localhost:3002");
 
       $(document).ready(function(){
 

@@ -6,12 +6,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -37,9 +32,9 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	private JScrollPane logPane = new JScrollPane(logArea);
 	private JScrollPane connectionsPane = new JScrollPane(connectionsArea);
 
-	private HashMap<String, String> commands = FileHandler.loadCommands("txt/commands.txt");
-	ArrayList<String> commandHistory = new ArrayList<String>();
 	private int selectedCommand = 0;
+	private ArrayList<String> commandList = FileHandler.readFile("txt/commands.txt");
+	private ArrayList<String> commandHistory = new ArrayList<String>();
 
 	private WebSocket ws;
 
@@ -48,12 +43,12 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		setTitle("WebSocket");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		Dimension logDimension = new Dimension(680, 370);
+		Dimension logDimension = new Dimension(700, 370);
 		Dimension userDimension = new Dimension(240, 370);
-		Dimension commandDimension = new Dimension(920, 25);
+		Dimension commandDimension = new Dimension(940, 25);
 
 		Border logBorder = new EmptyBorder(5, 5, 5, 5);
-		Border userBorder = new EmptyBorder(5, 0, 5, 5);
+		Border connectionsBorder = new EmptyBorder(5, 0, 5, 5);
 		Border commandBorder = new EmptyBorder(0, 5, 5, 5);
 		Border lineBorder = new LineBorder(Color.BLACK);
 
@@ -62,7 +57,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		logArea.setEditable(false);
 		logArea.setMargin(new Insets(5, 5, 5, 5));
 		logArea.append("Server log\n\n");
-		DefaultCaret logCaret = (DefaultCaret)logArea.getCaret();
+		DefaultCaret logCaret = (DefaultCaret) logArea.getCaret();
 		logCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		logPane.setMinimumSize(logDimension);
@@ -79,7 +74,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		connectionsPane.setMinimumSize(userDimension);
 		connectionsPane.setMaximumSize(userDimension);
 		connectionsPane.setPreferredSize(userDimension);
-		connectionsPane.setBorder(new CompoundBorder(userBorder, lineBorder));
+		connectionsPane.setBorder(new CompoundBorder(connectionsBorder, lineBorder));
 
 		commandField.setMinimumSize(commandDimension);
 		commandField.setMaximumSize(commandDimension);
@@ -110,9 +105,9 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 
 		// Send command
 		if (e.getKeyCode() == KeyEvent.VK_ENTER && commandField.getText().trim().length() > 0) {
-			String command = commandField.getText();
-			executeCommand(command);
-			commandHistory.add(command);
+			String[] commandInfo = commandField.getText().split("\\s+");
+			executeCommand(commandInfo);
+			commandHistory.add(commandInfo[0]);
 			selectedCommand = commandHistory.size();
 			commandField.setText("");
 
@@ -128,110 +123,124 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
-	public void executeCommand(String command) {
-		String timestamp = TimeUtility.getTimeStamp();
-		String output = timestamp;
+	private void executeCommand(String[] commandInfo) {
+		String command = commandInfo[0];
+		String[] arguments = new String[commandInfo.length - 1];
 
-		// Terminate application
-		if (command.equals("exit")) {
-			System.exit(0);
+		for (int i = 0; i < arguments.length; i++) {
+			arguments[i] = commandInfo[i + 1];
+		}
 
-			// Display all commands
-		} else if (command.equals("help")) {
-			output += " Server: ---- Listing all available commands ----\n";
-			logArea.append(output);
+		if (command.equals("start")) {
+			startServer(arguments);
 
-			for (Entry<String, String> entry : commands.entrySet()) {
-				output = timestamp + " Server: " + (entry.getKey() + "  -  " + entry.getValue() + "\n");
-				logArea.append(output);
-			}
-
-			// Start server
-		} else if (command.split("\\s+")[0].equals("start") && command.split("\\s+").length == 2)
-
-		{
-			try {
-				int port = Integer.parseInt(command.split("\\s")[1]);
-				if (port >= 1024 && port <= 65535) {
-					if (this.ws.startServer(port)) {
-						output += " Server: WebSocket started and ready to accept connections on port " + port + "\n";
-					} else {
-						output += " ERROR: WebSocket already running! - Type 'stop' to stop it\n";
-					}
-				} else {
-					output += " ERROR: Port number must be in range (1024 - 65535)\n";
-				}
-			} catch (NumberFormatException e) {
-				output += " ERROR: Port number must be an integer\n";
-			}
-			logArea.append(output);
-
-			// Stop server
 		} else if (command.equals("stop")) {
-			if (this.ws.stopServer()) {
-				ws.removeAllConnections();
-				updateConnectionsArea();
-				output += " Server: WebSocket stopped, all connections closed\n";
-			} else {
-				output += " ERROR: No server running!\n";
-			}
-			logArea.append(output);
+			stopServer();
 
-			// Set max number of connections
-		} else if (command.split("\\s+")[0].equals("max") && command.split("\\s+").length == 2) {
-			try {
-				int max = Integer.parseInt(command.split("\\s+")[1]);
-
-				if (max >= 1 && max <= 1000) {
-					ws.setMaxClients(max);
-					updateConnectionsArea();
-					output += " Server: Max number of connections set to " + max + "\n";
-				} else {
-					output += " ERROR: Max number of connections must be a number between 1 and 1000\n";
-				}
-
-			} catch (NumberFormatException e) {
-				output += " ERROR: Max number of connections must be a number between 1 and 1000\n";
-			}
-			logArea.append(output);
-
-			// Save log file
 		} else if (command.equals("save")) {
 			saveLogFile();
-			output += " Server: Saved logfile at txt/wslog.txt";
-			logArea.append(output);
 
-			// Clear log window
+		} else if (command.equals("max")) {
+			setMaxConnections(arguments);
+
+		} else if (command.equals("help")) {
+			logMessage("Server", "Displaying all available commands");
+			for (String s : commandList) {
+				logMessage("Server", s);
+			}
+
 		} else if (command.equals("clear")) {
 			logArea.setText("Server log\n\n");
 
-			// Display error message
+		} else if (command.equals("exit")) {
+			stopServer();
+			// TODO: Stop web server
+			saveLogFile();
+			System.exit(0);
+
 		} else {
-			output += " ERROR: " + command + " is not a recognized command, type 'help' for a list of commands\n";
-			logArea.append(output);
+			logMessage("Server", command + " is not a recognized command, type [help] for a list of commands");
+		}
+	}
+
+	private void startServer(String[] arguments) {
+		if (arguments.length == 0) {
+			if (this.ws.startServer(3002)) {
+				logMessage("Server", "Web socket server started and ready to accept connections on port 3002");
+			} else {
+				logMessage("Server", "Web socket server already running on port " + ws.getPort());
+			}
+		}
+
+		else if (arguments.length == 1) {
+			try {
+				int port = Integer.parseInt(arguments[0]);
+				if (port >= 1024 && port <= 65535) {
+					if (ws.startServer(port)) {
+						logMessage("Server",
+								"Web socket server started and ready to accept connections on port " + port);
+					} else {
+						logMessage("Server", "Web socket server already running on port " + ws.getPort());
+					}
+				} else {
+					logMessage("Server", "Port number must be in range (1024-65535)");
+				}
+			} catch (NumberFormatException e) {
+				logMessage("Server", "Port number must be an integer");
+			}
+		} else {
+			logMessage("Server", "Invalid number of arguments, the start command takes 0 - 1 arguments");
+		}
+	}
+
+	private void stopServer() {
+		if (this.ws.stopServer()) {
+			ws.removeAllConnections();
+			updateConnectionsArea();
+			logMessage("Server", "Web socket server stopped");
+		} else {
+			logMessage("Server", "No web socket server running.");
 		}
 	}
 
 	private void saveLogFile() {
-		PrintWriter writer;
-		try {
-			writer = new PrintWriter("txt/wslog.txt", "UTF-8");
-			writer.println(logArea.getText().trim());
-			writer.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		String destination = "txt/wslog.txt";
+		String content = logArea.getText().trim();
+
+		if (FileHandler.saveFile(destination, content)) {
+			logMessage("Server", "Log file created at " + destination);
+		} else {
+			logMessage("Server", "Undefined error upon trying to create log file");
 		}
 	}
 
-	public void updateConnectionsArea() {
+	private void setMaxConnections(String[] arguments) {
+		if (arguments.length == 1) {
+			try {
+				int max = Integer.parseInt(arguments[0]);
+				if (max >= 1 && max <= 1000) {
+					ws.setMaxClients(max);
+					updateConnectionsArea();
+					logMessage("Server", "Maximum number of connections set to " + max);
+				} else {
+					logMessage("Server", "Maximum number of connections must be an integer between 1 and 1000");
+				}
+			} catch (NumberFormatException e) {
+				logMessage("Server", "Maximum number of connections must be an integer between 1 and 1000");
+			}
+		} else {
+			logMessage("Server", "Invalid number of arguments, the max command takes 1 argument");
+		}
+	}
+
+	private void updateConnectionsArea() {
 		int numConnections = ws.getConnections().size();
 		int maxConnections = ws.getMaxConnections();
 		connectionsArea.setText("Active connections (" + numConnections + " / " + maxConnections + ")\n\n");
 
 		for (int i = 0; i < numConnections; i++) {
-			connectionsArea.append((i + 1) + ".  " + ws.getConnections().get(i).getInetAddress().getHostAddress()+"\n");
+			connectionsArea
+					.append((i + 1) + ".  " + ws.getConnections().get(i).getInetAddress().getHostAddress() + "\n");
 		}
 	}
 

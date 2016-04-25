@@ -1,6 +1,8 @@
-start <port number>-Start WebSocket server at specified port
-stop-Stop WebSocket server
-save-Save all text in the log window to file
-clear-Clear the log window
-exit-Close program
-max <number>-Set maximum number of connections
+start - Start web socket server at standard port: 3002
+start [port number] - Start web socket server at specified port
+stop - Stop web socket server
+max [number] - Set maximum number of connections
+save - Save all text in the log window to file
+clear - Clear the log window
+help - Display this message
+exit - Close web socket server, save log file and exit program

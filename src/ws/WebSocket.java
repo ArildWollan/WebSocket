@@ -19,15 +19,17 @@ public class WebSocket {
 	private WebSocket mainWebSocketServer = this;
 	private WebSocketGUI gui;
 	private int maxConnections = 100;
+	private int port;
 	
 	public synchronized ArrayList<Socket> getConnections() {
 		return connections;
 	}
 
-	public boolean startServer(int portnum) {
+	public boolean startServer(int port) {
 		if(!running) {
 			running = true;
-			runServer(portnum);			
+			this.port = port;
+			runServer(port);
 			return true;
 		}
 		return false;
@@ -89,8 +91,10 @@ public class WebSocket {
 	synchronized public void broadcast(WebSocketMessage message) {
 		for(Socket s : connections){
 			try {
-				s.getOutputStream().write(message.getFrame());
-			    s.getOutputStream().flush();
+				if(!s.isClosed()){
+					s.getOutputStream().write(message.getFrame());
+					s.getOutputStream().flush();					
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -124,6 +128,10 @@ public class WebSocket {
 	
 	public void setMaxClients(int maxClients) {
 		this.maxConnections = maxClients;
+	}
+
+	public int getPort() {
+		return port;
 	}
 
 	public static void main(String args[]) throws IOException {
