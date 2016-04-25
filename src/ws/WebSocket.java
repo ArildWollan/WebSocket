@@ -63,8 +63,10 @@ public class WebSocket {
 						if (connections.size() < maxConnections) {
 							try {
 								Socket conn = server.accept();
+								String address = conn.getInetAddress().getHostAddress();
 								connections.add(conn);
-								gui.addConnection(conn.getInetAddress().getHostAddress());
+								gui.logMessage(address, " has connected");
+								gui.updateConnectionsArea();
 								new Thread(new WebSocketConnection(conn, mainWebSocketServer)).start();
 								System.out.println(conn.getInetAddress().getHostAddress() + " has connected, clients: " + connections.size());
 							} catch (SocketException e) {
@@ -104,8 +106,8 @@ public class WebSocket {
 
 	public void removeConnection(Socket connection) {
 		connections.remove(connection);
-		System.out.println(connection.getInetAddress().getHostAddress() + " has disconnected, clients: " + connections.size());
-		gui.removeConnection(connection.getInetAddress().getHostAddress());
+		gui.logMessage(connection.getInetAddress().getHostAddress(), " has disconnected");
+		gui.updateConnectionsArea();
 	}
 	
 	public void removeAllConnections() {

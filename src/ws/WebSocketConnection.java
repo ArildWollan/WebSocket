@@ -9,10 +9,12 @@ import ws.server.ServerUtils;
 public class WebSocketConnection implements Runnable {
 	private Socket connection;
 	private WebSocket server;
+	private String address;
 
 	public WebSocketConnection(Socket connection, WebSocket server) {
 		this.connection = connection;
 		this.server = server;
+		this.address = connection.getInetAddress().getHostAddress();
 	}
 
 	@Override
@@ -28,14 +30,13 @@ public class WebSocketConnection implements Runnable {
 			pw.flush();
 
 			boolean disconnected = false;
-			while(!disconnected) {
+			while (!disconnected) {
 				// Parse frame and broadcast if not a disconnect.
 				WebSocketMessage receivedMsg = new WebSocketMessage(istream);
 
 				if (!receivedMsg.isDisconnect()) {
 					server.broadcast(receivedMsg);
-					server.getGUI().logMessage(connection.getInetAddress().getHostAddress(),
-							receivedMsg.getPayloadAsString());
+					server.getGUI().logMessage(address, receivedMsg.getPayloadAsString());
 				} else {
 					disconnected = true;
 				}
@@ -43,11 +44,9 @@ public class WebSocketConnection implements Runnable {
 			}
 			server.removeConnection(connection);
 			connection.close();
-			
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 }

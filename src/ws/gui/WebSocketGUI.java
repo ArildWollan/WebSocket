@@ -123,6 +123,13 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	/**
+	 * Takes a String[] containing a command and none or more arguments. Then
+	 * executes a piece of code based on the command and arguments
+	 * 
+	 * @param commandInfo
+	 *            a String[] containing the command and it's arguments
+	 */
 	private void executeCommand(String[] commandInfo) {
 		String command = commandInfo[0];
 		String[] arguments = new String[commandInfo.length - 1];
@@ -163,6 +170,14 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	/**
+	 * Starts the web socket server if it's not already running. Takes an
+	 * argument that specifies which port to listen at. If not argument is
+	 * specified the server will listen to port 3002 by default.
+	 * 
+	 * @param arguments
+	 *            The port number to listen at
+	 */
 	private void startServer(String[] arguments) {
 		if (arguments.length == 0) {
 			if (this.ws.startServer(3002)) {
@@ -193,6 +208,9 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	/**
+	 * Stops the web socket server if it's running.
+	 */
 	private void stopServer() {
 		if (this.ws.stopServer()) {
 			ws.removeAllConnections();
@@ -203,6 +221,9 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	/**
+	 * Saves the text in the log view to an external file
+	 */
 	private void saveLogFile() {
 		String destination = "txt/wslog.txt";
 		String content = logArea.getText().trim();
@@ -214,6 +235,12 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	/**
+	 * Sets the maximum number of connections accepted by the web socket server.
+	 * 
+	 * @param arguments
+	 *            The new maximum limit of connections
+	 */
 	private void setMaxConnections(String[] arguments) {
 		if (arguments.length == 1) {
 			try {
@@ -221,42 +248,43 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 				if (max >= 1 && max <= 1000) {
 					ws.setMaxClients(max);
 					updateConnectionsArea();
-					logMessage("Server", "Maximum number of connections set to " + max);
+					logMessage("Server", "Max. number of connections set to " + max);
 				} else {
-					logMessage("Server", "Maximum number of connections must be an integer between 1 and 1000");
+					logMessage("Server", "Max. number of connections must be an integer between 1 and 1000");
 				}
 			} catch (NumberFormatException e) {
-				logMessage("Server", "Maximum number of connections must be an integer between 1 and 1000");
+				logMessage("Server", "Max. number of connections must be an integer between 1 and 1000");
 			}
 		} else {
 			logMessage("Server", "Invalid number of arguments, the max command takes 1 argument");
 		}
 	}
 
-	private void updateConnectionsArea() {
+	/**
+	 * Updates the connections view. Should be called whenever a connection is
+	 * added or removed in WebSocket
+	 * 
+	 * @see WebSocket
+	 */
+	public void updateConnectionsArea() {
 		int numConnections = ws.getConnections().size();
 		int maxConnections = ws.getMaxConnections();
 		connectionsArea.setText("Active connections (" + numConnections + " / " + maxConnections + ")\n\n");
 
 		for (int i = 0; i < numConnections; i++) {
-			connectionsArea
-					.append((i + 1) + ".  " + ws.getConnections().get(i).getInetAddress().getHostAddress() + "\n");
+			String connectionAddress = ws.getConnections().get(i).getInetAddress().getHostAddress();
+			connectionsArea.append((i + 1) + ":  " + connectionAddress + "\n");
 		}
 	}
 
-	public void addConnection(String connection) {
-		String timestamp = TimeUtility.getTimeStamp();
-		logArea.append(timestamp + " " + connection + " has connected\n");
-		updateConnectionsArea();
-	}
-
-	public void removeConnection(String connection) {
-		String timestamp = TimeUtility.getTimeStamp();
-		logArea.append(timestamp + " " + connection + " has disconnected\n");
-		updateConnectionsArea();
-
-	}
-
+	/**
+	 * Displays the source and content of the message in the log view.
+	 * 
+	 * @param source
+	 *            The source of the message.
+	 * @param message
+	 *            The message content
+	 */
 	public void logMessage(String source, String message) {
 		String timestamp = TimeUtility.getTimeStamp();
 		logArea.append(timestamp + " " + source + ": " + message + "\n");
