@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 
 import ws.gui.WebSocketGUI;
+import ws.server.Webserver;
 
 public class WebSocket {
 
@@ -127,7 +128,9 @@ public class WebSocket {
 
 	public static void main(String args[]) throws IOException {
 		WebSocket ws = new WebSocket();
+		new Thread(new Webserver()).start();
 
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				WebSocketGUI gui = new WebSocketGUI(ws);

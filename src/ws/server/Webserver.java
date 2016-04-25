@@ -7,11 +7,14 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Webserver {
+public class Webserver implements Runnable{
 
-    public static void main(String args[]) throws IOException {
-        System.out.println("Web server started - Ready to accept connections on port 8080");
-        ServerSocket server = new ServerSocket(8080);
+	@Override
+	public void run() {
+		try{
+		int port = 8080;
+        System.out.println("Web server started - Ready to accept connections on port " + port);
+        ServerSocket server = new ServerSocket(port);
 
         while (true) {
             try (Socket connection = server.accept()) {
@@ -112,6 +115,9 @@ public class Webserver {
                 pw.println("</html>                                                                                                    ");
                 pw.flush();
             }
+        }
+        } catch (Exception e) {
+        	e.printStackTrace();
         }
     }
 }
