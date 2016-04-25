@@ -81,7 +81,6 @@ public class HttpHeader implements Map<String, String> {
 		return headers.entrySet();
 	}
 
-	//TODO: This is ugly and misses a bunch of information when it splits in more than two.
 	public void read(InputStream inputStream) throws IOException {
 		InputStreamReader isr = new InputStreamReader(inputStream);
 		BufferedReader br = new BufferedReader(isr);
@@ -91,10 +90,10 @@ public class HttpHeader implements Map<String, String> {
 		while(line.trim().length() != 0) {
 			line = br.readLine();
 			if (line.trim().length() > 1) {
-				headers.put(line.split(":")[0].trim(),line.split(":")[1].trim());				
+				String key = line.split(":")[0].trim();
+				String value =  line.substring(line.indexOf(":") + 1, line.length()).trim();
+				headers.put(key, value);				
 			}
 		}
-
 	}
-
 }
