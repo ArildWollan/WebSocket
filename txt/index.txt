@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script type="text/javascript"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+    <script type="text/javascript">
+
+      var name = "test";
+      var ws = new WebSocket("ws://158.38.188.94:3002");
+
+      $(document).ready(function(){
+
+
+        name = prompt("Please enter your name to join the chatroom", "Arild");
+
+        if (name != null) {
+          document.getElementById("display-name").innerHTML = "Name: " + name;
+        }
+
+        ws.onopen = () => {
+          $("#connection-label").html("Status: Connected");
+        };
+
+        ws.onclose = function(message) {
+          $("#connection-label").html("Status: Not connected");
+        };
+
+        ws.onmessage = (event) => {
+          var json=JSON.parse(event.data);
+
+          if(json.message) {
+            var jsonString = json.message.time + "    " + json.message.name + ": " + json.message.message
+            var oldText = document.getElementById("chat-area").value;
+            var newText = oldText + "\n" + jsonString;
+            $("#chat-area").html(newText);
+          }
+        };
+
+        ws.onerror = function(msg) {
+          console.log(msg);
+          $("#connection-label").html("Status: Not connected");
+        };
+
+        window.onkeyup = function(e) {
+          var key = e.keyCode ? e.keyCode : e.which;
+          if(key == 13) {
+            createMessage();
+            document.getElementById("message-area").value = "";
+          }
+        }
+      });
+
+      function createMessage() {
+        var message = document.getElementById("message-area").value;
+
+        // Get time
+        var d = new Date();
+        var h = d.getHours();
+        var m = d.getMinutes();
+
+        if(h < 10) {
+          h = "0" + h;
+        }
+
+        if(m < 10) {
+          m = "0" + m;
+        }
+
+        var time = h + ":" + m;
+
+        if(ws.readyState==1) {
+          var json={"message": { "time": time, "name": name, "message": message}};
+          ws.send(JSON.stringify(json));
+        }
+      }
+  </script>
+
+  <body>
+    <div style="width: 1200px; margin-left: auto; margin-right: auto; margin-top: 50px"id="container">
+      <p id="display-name"></p>
+      <p id="connection-label">Connecting...</p>
+      <textarea style="width: 100%; resize: none" rows="20" class="form-control" readonly id="chat-area"></textarea>
+      <textarea style="width: 100%; resize: none; margin-top: 5px" rows="3" class="form-control" id="message-area"></textarea>
+      <button type="button" class="btn btn-primary" style="width:100%; margin-top: 5px" onclick="createMessage()">Send</button>
+    </div>
+  </body>
+</html>
