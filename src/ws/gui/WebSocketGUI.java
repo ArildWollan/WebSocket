@@ -21,6 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.text.DefaultCaret;
 
 import ws.WebSocket;
 import ws.utils.FileHandler;
@@ -61,6 +62,8 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		logArea.setEditable(false);
 		logArea.setMargin(new Insets(5, 5, 5, 5));
 		logArea.append("Server log\n\n");
+		DefaultCaret logCaret = (DefaultCaret)logArea.getCaret();
+		logCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		logPane.setMinimumSize(logDimension);
 		logPane.setMaximumSize(logDimension);
