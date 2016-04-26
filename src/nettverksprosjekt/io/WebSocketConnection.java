@@ -1,14 +1,15 @@
-package ws;
+package nettverksprosjekt.io;
 
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import ws.server.ServerUtils;
+import nettverksprosjekt.servers.WebSocketServer;
+import nettverksprosjekt.utils.ServerUtils;
 /**
  * WebSocketConnection is intended to run as an own thread.
  * When run, it will get an inputstream from the socket connection,
- * read the http-header from the klient and return the header with
+ * read the http-header from the client and return the header with
  * correct handshake key. It will then enter a loop and wait for a 
  * transmission, for more info @see WebSocketMessage
  * @author henrik

@@ -1,4 +1,4 @@
-package ws.server;
+package nettverksprosjekt.utils;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

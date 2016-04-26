@@ -10,4 +10,4 @@ max [number] - Set maximum number of connections
 save - Save all text in the log window to file
 clear - Clear the log window
 help - Display this message
-exit - Close web socket server, save log file and exit program
+exit - Close both servers, save log file and exit program
