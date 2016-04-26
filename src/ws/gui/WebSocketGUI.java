@@ -40,15 +40,25 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	private WebSocketServer wss;
 	private WebServer ws;
 
+	/**
+	 * Creates a graphical user interface for the application. The interface
+	 * includes a command prompt where users can issue command to both the web
+	 * server and the web socket server. Output from the console and both
+	 * servers are displayed in the one window, and all active connections are
+	 * displayed in a separate window.
+	 * 
+	 * @param ws The web server
+	 * @param wss The web socket server
+	 */
 	public WebSocketGUI(WebServer ws, WebSocketServer wss) {
 		this.ws = ws;
 		this.wss = wss;
 		setTitle("WebSocket");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		Dimension logDimension = new Dimension(700, 370);
+		Dimension logDimension = new Dimension(740, 370);
 		Dimension userDimension = new Dimension(240, 370);
-		Dimension commandDimension = new Dimension(940, 25);
+		Dimension commandDimension = new Dimension(980, 25);
 
 		Border logBorder = new EmptyBorder(5, 5, 5, 5);
 		Border connectionsBorder = new EmptyBorder(5, 0, 5, 5);
@@ -59,7 +69,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		logArea.setWrapStyleWord(true);
 		logArea.setEditable(false);
 		logArea.setMargin(new Insets(5, 5, 5, 5));
-		logArea.append("Server log\n\n");
+		logArea.append("Program log\n\n");
 		DefaultCaret logCaret = (DefaultCaret) logArea.getCaret();
 		logCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
@@ -128,10 +138,10 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 
 	/**
 	 * Takes a String[] containing a command and none or more arguments. Then
-	 * executes a piece of code based on the command and arguments
+	 * executes the correct function based on the command and arguments.
 	 * 
 	 * @param commandInfo
-	 *            a String[] containing the command and it's arguments
+	 *            a String[] containing the command and its arguments
 	 */
 	private void executeCommand(String[] commandInfo) {
 		String command = commandInfo[0];
@@ -163,22 +173,22 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			setMaxConnections(arguments);
 
 		} else if (command.equals("help")) {
-			logMessage("Server", "Displaying all available commands");
+			logMessage("Console", "Displaying all available commands");
 			for (String s : commandList) {
-				logMessage("Server", s);
+				logMessage("Console", s);
 			}
 
 		} else if (command.equals("clear")) {
-			logArea.setText("Server log\n\n");
+			logArea.setText("Program log\n\n");
 
 		} else if (command.equals("exit")) {
 			stopWebSocketServer();
-			// TODO: Stop web server
+			stopWebServer();
 			saveLogFile();
 			System.exit(0);
 
 		} else {
-			logMessage("Server", command + " is not a recognized command, type [help] for a list of commands");
+			logMessage("Console", command + " is not a recognized command, type [help] for a list of commands");
 		}
 	}
 
@@ -233,6 +243,14 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	/**
+	 * Starts the web server if it's not already running. Takes an argument that
+	 * specifies which port to listen at. If not argument is specified the
+	 * server will listen to port 8080 by default.
+	 * 
+	 * @param arguments
+	 *            The port number to listen at
+	 */
 	private void startWebServer(String[] arguments) {
 		if (arguments.length == 0) {
 			if (this.ws.startServer(8080)) {
@@ -262,6 +280,9 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	/**
+	 * Stops the web server if it's running.
+	 */
 	private void stopWebServer() {
 		if (this.ws.stopServer()) {
 			logMessage("WebServer", "Web server stopped");
@@ -270,6 +291,11 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		}
 	}
 
+	/**
+	 * Simple setup. Starts both servers on their standard ports. If either of
+	 * the servers are already running they will be closed and restarted on
+	 * their standard port.
+	 */
 	private void autoStart() {
 		if (ws.isRunning()) {
 			ws.stopServer();

@@ -1,6 +1,10 @@
-start - Start web socket server at standard port: 3002
-start [port number] - Start web socket server at specified port
-stop - Stop web socket server
+socketstart - Start web socket server at standard port: 3002
+socketstart [port number] - Start web socket server at specified port
+socketstop - Stop web socket server
+webstart - Start web server at standard port: 8080
+webstart [port number] - Start web server at specified port
+webstop - Stop web server
+auto - starts both servers on their standard ports(simple setup)
 max [number] - Set maximum number of connections
 save - Save all text in the log window to file
 clear - Clear the log window

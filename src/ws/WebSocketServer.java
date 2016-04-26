@@ -103,14 +103,14 @@ public class WebSocketServer {
 								gui.updateConnectionsArea();
 								new Thread(new WebSocketConnection(connection, ws)).start();
 							} catch (SocketException e) {
-								e.printStackTrace();
+								
 							}
 						} else {
 							try {
 								Thread.sleep(5000);
 								gui.logMessage("SocketServer", "Max number of connections, sleeping 5 seconds");
 							} catch (InterruptedException e) {
-								e.printStackTrace();
+
 							}
 						}
 					}
@@ -145,7 +145,7 @@ public class WebSocketServer {
 						s.getOutputStream().write(message.getFrame());
 
 					} catch (SocketException e) {
-						System.out.println("broken pipe exception");
+						System.out.println("Broken pipe exception");
 					}
 					s.getOutputStream().flush();
 				}
@@ -199,7 +199,7 @@ public class WebSocketServer {
 	public int getPort() {
 		return port;
 	}
-	
+
 	public boolean isRunning() {
 		return running;
 	}
