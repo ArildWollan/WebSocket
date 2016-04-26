@@ -28,6 +28,14 @@ public class WebSocketMessage {
 	 */
 	private byte[] payload;
 
+	
+	/**
+	 * Decoding based on answer found here:
+	 * http://stackoverflow.com/questions/18368130/how-to-parse-and-validate-a-websocket-frame-in-java
+	 * 
+	 * @param inputStream
+	 * @throws IOException
+	 */
 	public WebSocketMessage(InputStream inputStream) throws IOException {
 
 		// Fin + OpCode byte
