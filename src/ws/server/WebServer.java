@@ -29,7 +29,13 @@ public class WebServer {
 	private void sendWebsite(PrintWriter pw) {
 		ArrayList<String> website = FileHandler.readFile("txt/index.txt");
 		for (String s : website) {
-			pw.println(s);
+						
+			if (s.contains("localhost")) {
+				pw.println(s.replace("localhost", ServerUtils.getIpAddress()));
+			} else {
+				pw.println(s);				
+			}
+			
 		}
 		pw.flush();
 	}
