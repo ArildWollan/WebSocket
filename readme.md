@@ -4,7 +4,7 @@
 
 *Participants: Henrik Width and Arild Wollan*
 
-The assignment is solved by presenting the user with a chat server.
+The assignment is solved by presenting the user with a chat client which connects to a WebSocket server implemented in java.
 
 The program is threaded and upon running it will start two threads, a simple webserver on port 8080 and a websocket server on port 3002.
 
