@@ -2,18 +2,17 @@
 <html>
   <head>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <script type="text/javascript"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 
     <script type="text/javascript">
 
-      var name = "test";
+      var name = "Anonymous";
       var ws = new WebSocket("ws://localhost:3002");
 
       $(document).ready(function(){
 
 
-        name = prompt("Please enter your name to join the chatroom", "Arild");
+        name = prompt("Please enter your name to join the chatroom", "Anon");
 
         if (name != null) {
           document.getElementById("display-name").innerHTML = "Name: " + name;
@@ -31,7 +30,7 @@
           var json=JSON.parse(event.data);
 
           if(json.message) {
-            var jsonString = json.message.time + "    " + json.message.name + ": " + json.message.message
+            var jsonString = json.message.time + "    " + json.message.name + ": " + $.trim(json.message.message);
             var oldText = document.getElementById("chat-area").value;
             var newText = oldText + "\n" + jsonString;
             $("#chat-area").html(newText);
@@ -78,11 +77,11 @@
   </script>
 
   <body>
-    <div style="width: 1200px; margin-left: auto; margin-right: auto; margin-top: 50px"id="container">
+    <div style="width: 70%; margin-left: auto; margin-right: auto; margin-top: 50px"id="container">
       <p id="display-name"></p>
       <p id="connection-label">Connecting...</p>
-      <textarea style="width: 100%; resize: none" rows="20" class="form-control" readonly id="chat-area"></textarea>
-      <textarea style="width: 100%; resize: none; margin-top: 5px" rows="3" class="form-control" id="message-area"></textarea>
+      <textarea style="width: 100%; resize: none" rows="10" class="form-control" readonly id="chat-area"></textarea>
+      <textarea style="width: 100%; resize: none; margin-top: 5px" rows="2" class="form-control" id="message-area"></textarea>
       <button type="button" class="btn btn-primary" style="width:100%; margin-top: 5px" onclick="createMessage()">Send</button>
     </div>
   </body>

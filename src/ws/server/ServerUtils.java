@@ -8,7 +8,11 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.Map;
-
+/**
+ * Various utils used 
+ * @author henrik
+ *
+ */
 public class ServerUtils {
 	public static String getIpAddress() {
 		String hostaddress = "localhost";

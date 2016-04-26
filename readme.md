@@ -8,12 +8,14 @@ The assignment is solved by presenting the user with a chat server.
 
 The program is threaded and upon running it will start two threads, a simple webserver on port 8080 and a websocket server on port 3002.
 
-Compile:
+1. Compile:
 ```sh
 javac -cp src/ src/**/*.java
 ```
 
-Run:
+2. Run:
 ```sh
 java -cp ./src/ ws.WebSocketServer
 ```
+
+3. Open http://localhost:8080
