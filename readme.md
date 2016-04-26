@@ -8,19 +8,30 @@ The assignment is solved by presenting the user with a chat server.
 
 The program is threaded and upon running it will start two threads, a simple webserver on port 8080 and a websocket server on port 3002.
 
-1. Compile:
+# Installation
+1. Clone the repository (optional)
 ```sh
+git clone https://github.com/ArildWollan/WebSocket.git
+```
+
+- Compile:
+```sh
+cd WebSocket
 javac -cp src/ src/**/*.java
 ```
 
-2. Run:
+- Run (from WebSocket direcotry):
 ```sh
 java -cp ./src/ ws.WebSocketServer
 ```
 
-3. Start the servers
-![Console started](https://github.com/ArildWollan/WebSocket/blob/master/src/console.png)
+- Start the servers
+![Console started](https://raw.githubusercontent.com/ArildWollan/WebSocket/master/doc/console.png?token=AEeDt0uSeiStyOk9pkAhqIwkwpayFh50ks5XKJGVwA%3D%3D)
 
+  - auto starts both servers, type help to display list of commands
 
+- Open http://localhost:8080
 
-4. Open http://localhost:8080
+# Documentation
+
+This project has no dependencies and is tested on java 8
