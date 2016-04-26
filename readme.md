@@ -1,8 +1,8 @@
-WebSocket-Project as part of  TDAT2004-A
+**WebSocket-Project as part of  TDAT2004-A**
 
-NTNU IIE, Spring 2016
+*NTNU IIE, Spring 2016*
 
-Participants: Henrik Width and Arild Wolland
+*Participants: Henrik Width and Arild Wollan*
 
 The assignment is solved by presenting the user with a chat server.
 
@@ -18,4 +18,9 @@ javac -cp src/ src/**/*.java
 java -cp ./src/ ws.WebSocketServer
 ```
 
-3. Open http://localhost:8080
+3. Start the servers
+![Console started](https://github.com/ArildWollan/WebSocket/blob/master/src/console.png)
+
+
+
+4. Open http://localhost:8080
