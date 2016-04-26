@@ -8,7 +8,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
+/**
+ * HttpHeader uses readLine() from an inputstream and parses the key:values pairs.
+ * it is done reading when it encounters an empty line as per the http spec.
+ * @author henrik
+ *
+ */
 public class HttpHeader implements Map<String, String> {
 	private Map<String, String> headers = new HashMap<String, String>();
 
@@ -81,16 +86,25 @@ public class HttpHeader implements Map<String, String> {
 		return headers.entrySet();
 	}
 
+	/**
+	 * Reads key http header from an inputstream.
+	 * client is expected to send a whole line at once.
+	 * @param inputStream to read from.
+	 * @throws IOException if inputstream could not be read from.
+	 */
 	public void read(InputStream inputStream) throws IOException {
 		InputStreamReader isr = new InputStreamReader(inputStream);
 		BufferedReader br = new BufferedReader(isr);
 		String line = br.readLine();
-
-		headers.put(line,"");			
+		// The first line is the GET request. 
+		headers.put("GET",line);			
 		while(line.trim().length() != 0) {
 			line = br.readLine();
 			if (line.trim().length() > 1) {
 				String key = line.split(":")[0].trim();
+				// Value can have multiple :-separators, store everythong after the forst one as value
+				// e.g host: http://localhost:2000 will have 'host' as key and 'http://localhost:2000'
+				// as value.
 				String value =  line.substring(line.indexOf(":") + 1, line.length()).trim();
 				headers.put(key, value);				
 			}
