@@ -14,7 +14,6 @@ public class FileHandler {
 	public static ArrayList<String> readFile(String path) {
 
 		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-			System.out.println("in readfile");
 			ArrayList<String> content = new ArrayList<String>();
 			String line = br.readLine();
 

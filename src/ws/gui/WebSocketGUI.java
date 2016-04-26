@@ -248,12 +248,12 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 				if (max >= 1 && max <= 1000) {
 					ws.setMaxClients(max);
 					updateConnectionsArea();
-					logMessage("Server", "Max. number of connections set to " + max);
+					logMessage("Server", "Max number of connections set to " + max);
 				} else {
-					logMessage("Server", "Max. number of connections must be an integer between 1 and 1000");
+					logMessage("Server", "Max number of connections must be an integer between 1 and 1000");
 				}
 			} catch (NumberFormatException e) {
-				logMessage("Server", "Max. number of connections must be an integer between 1 and 1000");
+				logMessage("Server", "Max number of connections must be an integer between 1 and 1000");
 			}
 		} else {
 			logMessage("Server", "Invalid number of arguments, the max command takes 1 argument");
