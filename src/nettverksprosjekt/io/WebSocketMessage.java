@@ -1,4 +1,4 @@
-package ws;
+package nettverksprosjekt.io;
 
 import java.io.IOException;
 import java.io.InputStream;

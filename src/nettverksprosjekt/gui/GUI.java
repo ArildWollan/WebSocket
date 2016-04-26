@@ -1,4 +1,4 @@
-package ws.gui;
+package nettverksprosjekt.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -18,12 +18,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.text.DefaultCaret;
 
-import ws.WebSocketServer;
-import ws.server.WebServer;
-import ws.utils.FileHandler;
-import ws.utils.TimeUtility;
+import nettverksprosjekt.servers.WebServer;
+import nettverksprosjekt.servers.WebSocketServer;
+import nettverksprosjekt.utils.FileHandler;
+import nettverksprosjekt.utils.TimeUtility;
 
-public class WebSocketGUI extends JFrame implements KeyListener {
+public class GUI extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = -906662423360329760L;
 
@@ -52,7 +52,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	 * @param wss
 	 *            The web socket server
 	 */
-	public WebSocketGUI(WebServer ws, WebSocketServer wss) {
+	public GUI(WebServer ws, WebSocketServer wss) {
 		this.ws = ws;
 		this.wss = wss;
 		setTitle("WebSocket");

@@ -1,4 +1,4 @@
-package ws.server;
+package nettverksprosjekt.servers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,12 +9,13 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-import ws.gui.WebSocketGUI;
-import ws.utils.FileHandler;
+import nettverksprosjekt.gui.GUI;
+import nettverksprosjekt.utils.FileHandler;
+import nettverksprosjekt.utils.ServerUtils;
 
 public class WebServer {
 
-	private WebSocketGUI gui;
+	private GUI gui;
 	private ServerSocket serverSocket;
 	private boolean running;
 	private int port;
@@ -124,11 +125,11 @@ public class WebServer {
 		serverThread.start();
 	}
 
-	public WebSocketGUI getGUI() {
+	public GUI getGUI() {
 		return gui;
 	}
 
-	public void setGUI(WebSocketGUI gui) {
+	public void setGUI(GUI gui) {
 		this.gui = gui;
 	}
 

@@ -1,4 +1,4 @@
-package ws;
+package nettverksprosjekt.servers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -8,13 +8,14 @@ import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
 
-import ws.gui.WebSocketGUI;
-import ws.server.WebServer;
+import nettverksprosjekt.gui.GUI;
+import nettverksprosjekt.io.WebSocketConnection;
+import nettverksprosjekt.io.WebSocketMessage;
 
 public class WebSocketServer {
 
 	private WebSocketServer ws = this;
-	private WebSocketGUI gui;
+	private GUI gui;
 	private ServerSocket serverSocket;
 	private ArrayList<Socket> connections = new ArrayList<>();
 	private boolean running;
@@ -180,11 +181,11 @@ public class WebSocketServer {
 		}
 	}
 
-	public WebSocketGUI getGUI() {
+	public GUI getGUI() {
 		return gui;
 	}
 
-	public void setGUI(WebSocketGUI gui) {
+	public void setGUI(GUI gui) {
 		this.gui = gui;
 	}
 
@@ -209,7 +210,7 @@ public class WebSocketServer {
 			public void run() {
 				WebServer ws = new WebServer();
 				WebSocketServer wss = new WebSocketServer();
-				WebSocketGUI gui = new WebSocketGUI(ws, wss);
+				GUI gui = new GUI(ws, wss);
 
 				ws.setGUI(gui);
 				wss.setGUI(gui);
