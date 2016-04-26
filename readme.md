@@ -45,11 +45,13 @@ When using the standard settings, The server accepts up to 100 connections on po
 # Further work
 If we were to continue working on this project, the following areas would be of interest:
 
-1. Extracting server functionality into own interface.
-2. Ping/Pong functionality.
-3. Closing connection from server side.
-4. ...
-
+- Extracting server functionality into own interface.
+- Ping/Pong functionality.
+- Closing connection from server side.
+- Refactor with respect to inheritance.
+- Accepting binary frames.
+- Handle Continuitation frames.
+- Handle very large payloads.
 
 # References
 
