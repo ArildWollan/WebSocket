@@ -19,8 +19,8 @@ java -cp ./src/ ws.WebSocketServer
 ```
 
 3. Start the servers
-![Console started](https://github.com/ArildWollan/WebSocket/blob/master/src/console.png)
+![Console started](https://raw.githubusercontent.com/ArildWollan/WebSocket/master/doc/console.png?token=AEeDt0uSeiStyOk9pkAhqIwkwpayFh50ks5XKJGVwA%3D%3D)
 
-
+  - auto starts both servers, type help to display list of commands
 
 4. Open http://localhost:8080
