@@ -1,8 +1,6 @@
 package nettverksprosjekt.servers;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -103,7 +101,6 @@ public class WebServer {
 					while (running) {
 						try (Socket connection = serverSocket.accept()) {
 							System.out.println(connection.getInetAddress().getHostAddress() + " has connected");
-							BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 							PrintWriter pw = new PrintWriter(connection.getOutputStream());
 
 							// Send server headers
