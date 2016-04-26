@@ -5,7 +5,15 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import ws.server.ServerUtils;
-
+/**
+ * WebSocketConnection is intended to run as an own thread.
+ * When run, it will get an inputstream from the socket connection,
+ * read the http-header from the klient and return the header with
+ * correct handshake key. It will then enter a loop and wait for a 
+ * transmission, for more info @see WebSocketMessage
+ * @author henrik
+ *
+ */
 public class WebSocketConnection implements Runnable {
 	private Socket connection;
 	private WebSocketServer server;
@@ -26,7 +34,7 @@ public class WebSocketConnection implements Runnable {
 			PrintWriter pw = new PrintWriter(connection.getOutputStream());
 			pw.println("HTTP/1.1 101 Switching Protocols\nUpgrade: websocket\nConnection: Upgrade");
 			pw.println("Sec-WebSocket-Accept: " + ServerUtils.parseAndGetWebsocketAccept(clientheaders));
-			pw.println(""); // Needed, because?
+			pw.println(""); // Needed per http spec.
 			pw.flush();
 
 			boolean disconnected = false;
@@ -42,6 +50,7 @@ public class WebSocketConnection implements Runnable {
 				}
 
 			}
+			istream.close();
 			server.removeConnection(connection);
 			connection.close();
 
