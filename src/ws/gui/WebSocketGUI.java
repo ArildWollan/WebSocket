@@ -18,7 +18,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.text.DefaultCaret;
 
-import ws.WebSocket;
+import ws.WebSocketServer;
+import ws.server.WebServer;
 import ws.utils.FileHandler;
 import ws.utils.TimeUtility;
 
@@ -36,10 +37,12 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	private ArrayList<String> commandList = FileHandler.readFile("txt/commands.txt");
 	private ArrayList<String> commandHistory = new ArrayList<String>();
 
-	private WebSocket ws;
+	private WebSocketServer wss;
+	private WebServer ws;
 
-	public WebSocketGUI(WebSocket ws) {
+	public WebSocketGUI(WebServer ws, WebSocketServer wss) {
 		this.ws = ws;
+		this.wss = wss;
 		setTitle("WebSocket");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -69,7 +72,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		connectionsArea.setWrapStyleWord(true);
 		connectionsArea.setEditable(false);
 		connectionsArea.setMargin(new Insets(5, 5, 5, 5));
-		connectionsArea.append("Active connections (0 / " + ws.getMaxConnections() + ")\n\n");
+		connectionsArea.append("Active connections (0 / " + wss.getMaxConnections() + ")\n\n");
 
 		connectionsPane.setMinimumSize(userDimension);
 		connectionsPane.setMaximumSize(userDimension);
@@ -138,11 +141,20 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			arguments[i] = commandInfo[i + 1];
 		}
 
-		if (command.equals("start")) {
-			startServer(arguments);
+		if (command.equals("socketstart")) {
+			startWebSocketServer(arguments);
 
-		} else if (command.equals("stop")) {
-			stopServer();
+		} else if (command.equals("socketstop")) {
+			stopWebSocketServer();
+
+		} else if (command.equals("webstart")) {
+			startWebServer(arguments);
+
+		} else if (command.equals("webstop")) {
+			stopWebServer();
+
+		} else if (command.equals("auto")) {
+			autoStart();
 
 		} else if (command.equals("save")) {
 			saveLogFile();
@@ -160,7 +172,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			logArea.setText("Server log\n\n");
 
 		} else if (command.equals("exit")) {
-			stopServer();
+			stopWebSocketServer();
 			// TODO: Stop web server
 			saveLogFile();
 			System.exit(0);
@@ -178,12 +190,55 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	 * @param arguments
 	 *            The port number to listen at
 	 */
-	private void startServer(String[] arguments) {
+	private void startWebSocketServer(String[] arguments) {
 		if (arguments.length == 0) {
-			if (this.ws.startServer(3002)) {
-				logMessage("Server", "Web socket server started and ready to accept connections on port 3002");
+			if (this.wss.startServer(3002)) {
+				logMessage("SocketServer", "Web socket server started and ready to accept connections on port 3002");
 			} else {
-				logMessage("Server", "Web socket server already running on port " + ws.getPort());
+				logMessage("SocketServer", "Web socket server already running on port " + wss.getPort());
+			}
+		}
+
+		else if (arguments.length == 1) {
+			try {
+				int port = Integer.parseInt(arguments[0]);
+				if (port >= 1024 && port <= 65535) {
+					if (wss.startServer(port)) {
+						logMessage("SocketServer",
+								"Web socket server started and ready to accept connections on port " + port);
+					} else {
+						logMessage("SocketServer", "Web socket server already running on port " + wss.getPort());
+					}
+				} else {
+					logMessage("SocketServer", "Port number must be in range (1024-65535)");
+				}
+			} catch (NumberFormatException e) {
+				logMessage("SocketServer", "Port number must be an integer");
+			}
+		} else {
+			logMessage("SocketServer", "Invalid number of arguments, the start command takes 0 - 1 arguments");
+		}
+	}
+
+	/**
+	 * Stops the web socket server if it's running.
+	 */
+	private void stopWebSocketServer() {
+		if (this.wss.stopServer()) {
+			wss.removeAllConnections();
+			updateConnectionsArea();
+			logMessage("SocketServer", "Web socket server stopped");
+		} else {
+			logMessage("SocketServer", "No web socket server running.");
+		}
+	}
+
+	private void startWebServer(String[] arguments) {
+		if (arguments.length == 0) {
+			if (this.ws.startServer(8080)) {
+				logMessage("WebServer", "Web server started and ready to accept connections on port 8080");
+			} else {
+				logMessage("WebServer", "Web server already running on port " + ws.getPort());
 			}
 		}
 
@@ -192,33 +247,44 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 				int port = Integer.parseInt(arguments[0]);
 				if (port >= 1024 && port <= 65535) {
 					if (ws.startServer(port)) {
-						logMessage("Server",
-								"Web socket server started and ready to accept connections on port " + port);
+						logMessage("WebServer", "Web server started and ready to accept connections on port " + port);
 					} else {
-						logMessage("Server", "Web socket server already running on port " + ws.getPort());
+						logMessage("WebServer", "Web server already running on port " + ws.getPort());
 					}
 				} else {
-					logMessage("Server", "Port number must be in range (1024-65535)");
+					logMessage("WebServer", "Port number must be in range (1024-65535)");
 				}
 			} catch (NumberFormatException e) {
-				logMessage("Server", "Port number must be an integer");
+				logMessage("WebServer", "Port number must be an integer");
 			}
 		} else {
-			logMessage("Server", "Invalid number of arguments, the start command takes 0 - 1 arguments");
+			logMessage("WebServer", "Invalid number of arguments, the webstart command takes 0 - 1 arguments");
 		}
 	}
 
-	/**
-	 * Stops the web socket server if it's running.
-	 */
-	private void stopServer() {
+	private void stopWebServer() {
 		if (this.ws.stopServer()) {
-			ws.removeAllConnections();
-			updateConnectionsArea();
-			logMessage("Server", "Web socket server stopped");
+			logMessage("WebServer", "Web server stopped");
 		} else {
-			logMessage("Server", "No web socket server running.");
+			logMessage("WebServer", "No web server running.");
 		}
+	}
+
+	private void autoStart() {
+		if (ws.isRunning()) {
+			ws.stopServer();
+			logMessage("WebServer", "Web server stopped");
+		}
+
+		if (wss.isRunning()) {
+			wss.stopServer();
+			logMessage("SocketServer", "Web socket server stopped");
+		}
+		ws.startServer(8080);
+		wss.startServer(3002);
+		logMessage("WebServer", "Web server started and ready to accept connections on port 8080");
+		logMessage("SocketServer", "Web socket server started and ready to accept connections on port 3002");
+
 	}
 
 	/**
@@ -229,9 +295,9 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		String content = logArea.getText().trim();
 
 		if (FileHandler.saveFile(destination, content)) {
-			logMessage("Server", "Log file created at " + destination);
+			logMessage("Console", "Log file created at " + destination);
 		} else {
-			logMessage("Server", "Undefined error upon trying to create log file");
+			logMessage("Console", "Undefined error upon trying to create log file");
 		}
 	}
 
@@ -246,17 +312,17 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			try {
 				int max = Integer.parseInt(arguments[0]);
 				if (max >= 1 && max <= 1000) {
-					ws.setMaxClients(max);
+					wss.setMaxClients(max);
 					updateConnectionsArea();
-					logMessage("Server", "Max number of connections set to " + max);
+					logMessage("SocketServer", "Max number of connections set to " + max);
 				} else {
-					logMessage("Server", "Max number of connections must be an integer between 1 and 1000");
+					logMessage("SocketServer", "Max number of connections must be an integer between 1 and 1000");
 				}
 			} catch (NumberFormatException e) {
-				logMessage("Server", "Max number of connections must be an integer between 1 and 1000");
+				logMessage("SocketServer", "Max number of connections must be an integer between 1 and 1000");
 			}
 		} else {
-			logMessage("Server", "Invalid number of arguments, the max command takes 1 argument");
+			logMessage("SocketServer", "Invalid number of arguments, the max command takes 1 argument");
 		}
 	}
 
@@ -264,15 +330,15 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	 * Updates the connections view. Should be called whenever a connection is
 	 * added or removed in WebSocket
 	 * 
-	 * @see WebSocket
+	 * @see WebSocketServer
 	 */
 	public void updateConnectionsArea() {
-		int numConnections = ws.getConnections().size();
-		int maxConnections = ws.getMaxConnections();
+		int numConnections = wss.getConnections().size();
+		int maxConnections = wss.getMaxConnections();
 		connectionsArea.setText("Active connections (" + numConnections + " / " + maxConnections + ")\n\n");
 
 		for (int i = 0; i < numConnections; i++) {
-			String connectionAddress = ws.getConnections().get(i).getInetAddress().getHostAddress();
+			String connectionAddress = wss.getConnections().get(i).getInetAddress().getHostAddress();
 			connectionsArea.append((i + 1) + ":  " + connectionAddress + "\n");
 		}
 	}

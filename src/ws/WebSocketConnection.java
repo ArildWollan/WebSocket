@@ -8,10 +8,10 @@ import ws.server.ServerUtils;
 
 public class WebSocketConnection implements Runnable {
 	private Socket connection;
-	private WebSocket server;
+	private WebSocketServer server;
 	private String address;
 
-	public WebSocketConnection(Socket connection, WebSocket server) {
+	public WebSocketConnection(Socket connection, WebSocketServer server) {
 		this.connection = connection;
 		this.server = server;
 		this.address = connection.getInetAddress().getHostAddress();

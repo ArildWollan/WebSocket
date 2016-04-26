@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 
 import ws.gui.WebSocketGUI;
-import ws.server.Webserver;
+import ws.server.WebServer;
 
-public class WebSocket {
+public class WebSocketServer {
 
-	private WebSocket ws = this;
+	private WebSocketServer ws = this;
 	private WebSocketGUI gui;
 	private ServerSocket serverSocket;
 	private ArrayList<Socket> connections = new ArrayList<>();
@@ -108,7 +108,7 @@ public class WebSocket {
 						} else {
 							try {
 								Thread.sleep(5000);
-								gui.logMessage("Server", "Max number of connections, sleeping 5 seconds");
+								gui.logMessage("SocketServer", "Max number of connections, sleeping 5 seconds");
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
@@ -199,15 +199,20 @@ public class WebSocket {
 	public int getPort() {
 		return port;
 	}
+	
+	public boolean isRunning() {
+		return running;
+	}
 
 	public static void main(String args[]) throws IOException {
-		WebSocket ws = new WebSocket();
-		new Thread(new Webserver()).start();
-
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				WebSocketGUI gui = new WebSocketGUI(ws);
+				WebServer ws = new WebServer();
+				WebSocketServer wss = new WebSocketServer();
+				WebSocketGUI gui = new WebSocketGUI(ws, wss);
+
 				ws.setGUI(gui);
+				wss.setGUI(gui);
 			}
 		});
 	}
