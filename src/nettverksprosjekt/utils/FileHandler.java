@@ -4,9 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+
+import nettverksprosjekt.servers.WebSocketServer;
 
 public class FileHandler {
 
@@ -25,7 +29,10 @@ public class FileHandler {
 	 */
 	public static ArrayList<String> readFile(String path) {
 
-		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+		InputStream is = WebSocketServer.class.getResourceAsStream(path);
+		InputStreamReader isr = new InputStreamReader(is);
+
+		try (BufferedReader br = new BufferedReader(isr);) {
 			ArrayList<String> content = new ArrayList<String>();
 			String line = br.readLine();
 
@@ -64,6 +71,7 @@ public class FileHandler {
 		PrintWriter pw;
 		try {
 			pw = new PrintWriter(path, "UTF-8");
+			pw.print("Logfile created " + TimeUtility.getTimeStamp());
 			pw.println(content.trim());
 			pw.close();
 			return true;

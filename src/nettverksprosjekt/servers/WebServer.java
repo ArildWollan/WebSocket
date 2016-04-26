@@ -26,7 +26,7 @@ public class WebServer {
 	 *            The PrintWriter that will output the content
 	 */
 	private void sendWebsite(PrintWriter pw) {
-		ArrayList<String> website = FileHandler.readFile("txt/index.html");
+		ArrayList<String> website = FileHandler.readFile("/index.html");
 		for (String s : website) {
 						
 			if (s.contains("localhost")) {
@@ -100,7 +100,8 @@ public class WebServer {
 					serverSocket = new ServerSocket(port);
 					while (running) {
 						try (Socket connection = serverSocket.accept()) {
-							System.out.println(connection.getInetAddress().getHostAddress() + " has connected");
+							String address = connection.getInetAddress().getHostAddress();
+							//gui.logMessage("WebServer", address + " requested to load index.html");
 							PrintWriter pw = new PrintWriter(connection.getOutputStream());
 
 							// Send server headers

@@ -100,7 +100,7 @@ public class WebSocketServer {
 								Socket connection = serverSocket.accept();
 								String address = connection.getInetAddress().getHostAddress();
 								connections.add(connection);
-								gui.logMessage(address, " has connected");
+								gui.logMessage("SocketServer", address + " has connected");
 								gui.updateConnectionsArea();
 								new Thread(new WebSocketConnection(connection, ws)).start();
 							} catch (SocketException e) {
@@ -166,7 +166,8 @@ public class WebSocketServer {
 	 */
 	public void removeConnection(Socket connection) {
 		connections.remove(connection);
-		gui.logMessage(connection.getInetAddress().getHostAddress(), " has disconnected");
+		String address = connection.getInetAddress().getHostAddress();
+		gui.logMessage("SocketServer", address + " has disconnected");
 		gui.updateConnectionsArea();
 	}
 

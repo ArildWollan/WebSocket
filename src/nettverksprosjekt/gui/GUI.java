@@ -34,7 +34,7 @@ public class GUI extends JFrame implements KeyListener {
 	private JScrollPane connectionsPane = new JScrollPane(connectionsArea);
 
 	private int selectedCommand = 0;
-	private ArrayList<String> commandList = FileHandler.readFile("txt/commands.txt");
+	private ArrayList<String> commandList = FileHandler.readFile("/commands.txt");
 	private ArrayList<String> commandHistory = new ArrayList<String>();
 
 	private WebSocketServer wss;
@@ -58,9 +58,9 @@ public class GUI extends JFrame implements KeyListener {
 		setTitle("WebSocket");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		Dimension logDimension = new Dimension(740, 370);
-		Dimension userDimension = new Dimension(240, 370);
-		Dimension commandDimension = new Dimension(980, 25);
+		Dimension logDimension = new Dimension(760, 440);
+		Dimension userDimension = new Dimension(240, 440);
+		Dimension commandDimension = new Dimension(1000, 25);
 
 		Border logBorder = new EmptyBorder(5, 5, 5, 5);
 		Border connectionsBorder = new EmptyBorder(5, 0, 5, 5);
@@ -186,10 +186,10 @@ public class GUI extends JFrame implements KeyListener {
 
 		} else if (command.equals("clear")) {
 			logArea.setText("Program log\n\n");
+			logMessage("Console", "Type [start] for simple setup, type [help] for a list of avilable commands");
 
 		} else if (command.equals("exit")) {
-			stopWebSocketServer();
-			stopWebServer();
+			autoStop();
 			saveLogFile();
 			System.exit(0);
 
@@ -323,22 +323,16 @@ public class GUI extends JFrame implements KeyListener {
 	 * Stops either server that is running.
 	 */
 	private void autoStop() {
-		if (ws.isRunning()) {
-			ws.stopServer();
-			logMessage("WebServer", "Web server stopped");
-		}
-
-		if (wss.isRunning()) {
-			wss.stopServer();
-			logMessage("SocketServer", "Web socket server stopped");
-		}
+		stopWebServer();
+		stopWebSocketServer();
 	}
 
 	/**
 	 * Saves the text in the log view to an external file
 	 */
 	private void saveLogFile() {
-		String destination = "txt/wslog.txt";
+		String home = System.getProperty("user.home");
+		String destination = home + "/log.txt";
 		String content = logArea.getText().trim();
 
 		if (FileHandler.saveFile(destination, content)) {
