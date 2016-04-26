@@ -27,7 +27,7 @@ public class WebServer {
 	 *            The PrintWriter that will output the content
 	 */
 	private void sendWebsite(PrintWriter pw) {
-		ArrayList<String> website = FileHandler.readFile("txt/index.txt");
+		ArrayList<String> website = FileHandler.readFile("txt/index.html");
 		for (String s : website) {
 						
 			if (s.contains("localhost")) {
