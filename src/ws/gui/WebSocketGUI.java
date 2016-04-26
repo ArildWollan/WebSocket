@@ -47,8 +47,10 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 	 * servers are displayed in the one window, and all active connections are
 	 * displayed in a separate window.
 	 * 
-	 * @param ws The web server
-	 * @param wss The web socket server
+	 * @param ws
+	 *            The web server
+	 * @param wss
+	 *            The web socket server
 	 */
 	public WebSocketGUI(WebServer ws, WebSocketServer wss) {
 		this.ws = ws;
@@ -102,6 +104,7 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
+		logMessage("Console", "Type [start] for simple setup, type [help] for a list of avilable commands");
 		commandField.requestFocus();
 	}
 
@@ -151,7 +154,13 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 			arguments[i] = commandInfo[i + 1];
 		}
 
-		if (command.equals("socketstart")) {
+		if (command.equals("start")) {
+			autoStart();
+
+		} else if (command.equals("stop")) {
+			autoStop();
+
+		} else if (command.equals("socketstart")) {
 			startWebSocketServer(arguments);
 
 		} else if (command.equals("socketstop")) {
@@ -162,9 +171,6 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 
 		} else if (command.equals("webstop")) {
 			stopWebServer();
-
-		} else if (command.equals("auto")) {
-			autoStart();
 
 		} else if (command.equals("save")) {
 			saveLogFile();
@@ -311,6 +317,21 @@ public class WebSocketGUI extends JFrame implements KeyListener {
 		logMessage("WebServer", "Web server started and ready to accept connections on port 8080");
 		logMessage("SocketServer", "Web socket server started and ready to accept connections on port 3002");
 
+	}
+
+	/**
+	 * Stops either server that is running.
+	 */
+	private void autoStop() {
+		if (ws.isRunning()) {
+			ws.stopServer();
+			logMessage("WebServer", "Web server stopped");
+		}
+
+		if (wss.isRunning()) {
+			wss.stopServer();
+			logMessage("SocketServer", "Web socket server stopped");
+		}
 	}
 
 	/**

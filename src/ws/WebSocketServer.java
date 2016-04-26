@@ -145,7 +145,7 @@ public class WebSocketServer {
 						s.getOutputStream().write(message.getFrame());
 
 					} catch (SocketException e) {
-						System.out.println("Broken pipe exception");
+						s.close();
 					}
 					s.getOutputStream().flush();
 				}
