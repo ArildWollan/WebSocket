@@ -127,7 +127,7 @@ public class WebSocket {
 	 * to all connected clients.
 	 * 
 	 * @param message
-	 *            the message to broadcast
+	 *            The message to broadcast
 	 * @exception SocketException
 	 *                when a connection is closed by the client or a network
 	 *                error occurs. This is usually called a
