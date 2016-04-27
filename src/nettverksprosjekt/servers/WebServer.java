@@ -100,8 +100,6 @@ public class WebServer {
 					serverSocket = new ServerSocket(port);
 					while (running) {
 						try (Socket connection = serverSocket.accept()) {
-							String address = connection.getInetAddress().getHostAddress();
-							//gui.logMessage("WebServer", address + " requested to load index.html");
 							PrintWriter pw = new PrintWriter(connection.getOutputStream());
 
 							// Send server headers
