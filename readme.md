@@ -9,6 +9,14 @@ The assignment is solved by presenting the user with a chat client which connect
 The program is threaded and upon running it will start two threads, a simple webserver on port 8080 and a websocket server on port 3002.
 
 # Installation
+
+A runnable jar file is included for convenience, this is runnable from a terminal. 
+```sh
+java -jar WebSocket.jar
+```
+
+If you want to compile from scratch, follow these steps.
+
 1. Clone the repository.
 ```sh
 git clone https://github.com/ArildWollan/WebSocket.git
