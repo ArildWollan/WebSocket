@@ -108,8 +108,8 @@ public class WebSocketServer {
 							}
 						} else {
 							try {
-								Thread.sleep(5000);
 								gui.logMessage("SocketServer", "Max number of connections, sleeping 5 seconds");
+								Thread.sleep(5000);
 							} catch (InterruptedException e) {
 
 							}
